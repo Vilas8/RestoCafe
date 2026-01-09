@@ -7,6 +7,26 @@ import { SMSNotification } from '@/types/notification';
 
 class SMSService {
   /**
+   * Format phone number to ensure it has space after country code
+   * Converts +919876543210 to +91 9876543210
+   */
+  formatPhoneNumber(phoneNumber: string): string {
+    // Remove all spaces first
+    let cleaned = phoneNumber.replace(/\s+/g, '');
+    
+    // If starts with + and no space after country code, add it
+    if (cleaned.startsWith('+')) {
+      // Match country code (1-4 digits after +) and rest of number
+      const match = cleaned.match(/^(\+\d{1,4})(\d+)$/);
+      if (match) {
+        return `${match[1]} ${match[2]}`;
+      }
+    }
+    
+    return cleaned;
+  }
+
+  /**
    * Send order confirmation SMS
    */
   async sendOrderConfirmation(
@@ -56,8 +76,11 @@ class SMSService {
    */
   private async sendSMS(phoneNumber: string, message: string): Promise<boolean> {
     try {
+      // Format phone number before sending
+      const formattedPhone = this.formatPhoneNumber(phoneNumber);
+      
       const smsData: SMSNotification = {
-        to: phoneNumber,
+        to: formattedPhone,
         message,
       };
 
@@ -80,7 +103,7 @@ class SMSService {
    * Validate phone number format
    */
   validatePhoneNumber(phoneNumber: string): boolean {
-    // Basic validation for Indian phone numbers
+    // Basic validation for international phone numbers
     const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/;
     return phoneRegex.test(phoneNumber);
   }

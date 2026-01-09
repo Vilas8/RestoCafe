@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SMSNotification } from '@/types/notification';
 
 /**
+ * Format phone number to ensure space after country code
+ * Converts +919876543210 to +91 9876543210
+ */
+function formatPhoneNumber(phoneNumber: string): string {
+  // Remove all spaces first
+  let cleaned = phoneNumber.replace(/\s+/g, '');
+  
+  // If starts with + and no space after country code, add it
+  if (cleaned.startsWith('+')) {
+    // Match country code (1-4 digits after +) and rest of number
+    const match = cleaned.match(/^(\+\d{1,4})(\d+)$/);
+    if (match) {
+      return `${match[1]} ${match[2]}`;
+    }
+  }
+  
+  return cleaned;
+}
+
+/**
  * API Route: Send SMS notification
  * Uses Twilio for SMS delivery
  */
@@ -16,6 +36,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Format phone number
+    const formattedPhone = formatPhoneNumber(smsData.to);
+    console.log('Original phone:', smsData.to);
+    console.log('Formatted phone:', formattedPhone);
 
     // Check if Twilio is configured
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -42,7 +67,7 @@ export async function POST(request: NextRequest) {
       const result = await client.messages.create({
         body: smsData.message,
         from: twilioPhone,
-        to: smsData.to,
+        to: formattedPhone,  // Use formatted phone number
       });
 
       console.log('✅ SMS sent via Twilio:', result.sid);
@@ -50,7 +75,12 @@ export async function POST(request: NextRequest) {
         { 
           success: true, 
           message: 'SMS sent successfully via Twilio',
-          data: { sid: result.sid, status: result.status }
+          data: { 
+            sid: result.sid, 
+            status: result.status,
+            to: formattedPhone,
+            original: smsData.to
+          }
         },
         { status: 200 }
       );
@@ -93,5 +123,6 @@ export async function GET() {
     message: accountSid && authToken && twilioPhone
       ? 'SMS service (Twilio) is configured and ready'
       : 'SMS service not configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to environment variables.',
+    note: 'Phone numbers should be in format: +91 9876543210 (with space after country code)'
   });
 }

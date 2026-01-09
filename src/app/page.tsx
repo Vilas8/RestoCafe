@@ -6,7 +6,6 @@ import { Utensils, Clock, MapPin } from 'lucide-react';
 import { RESTAURANT_INFO, MENU_ITEMS } from '@/lib/constants';
 import MenuItem from '@/components/MenuItem';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
 
 const featureVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -28,100 +27,47 @@ const containerVariants = {
 };
 
 function HeroSection() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const heroRect = heroRef.current.getBoundingClientRect();
-        const scrolled = -heroRect.top;
-        setScrollY(Math.max(0, scrolled));
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <section
-      ref={heroRef}
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-black"
-    >
-      {/* Parallax Background Image */}
-      <div
-        ref={imageRef}
-        className="absolute inset-0 w-full h-full"
-        style={{
-          transform: `translateY(${scrollY * 0.5}px) scale(1.08)`,
-          transition: 'transform 0.1s ease-out',
-        }}
-      >
+    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 w-full h-full">
         <Image
-          src="https://i.ibb.co/ZpRSTcnW/hero-background.jpg"
+          src="https://i.ibb.co/Kcvf88db/Hero-Banner-1.png"
           alt="RestoCafe Hero Banner"
           fill
           className="object-cover object-center"
           priority
-          quality={90}
+          quality={95}
         />
       </div>
 
-      {/* Dynamic Gradient Overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"
-        style={{
-          opacity: Math.min(1, 0.6 + scrollY / 1000),
-        }}
-      ></div>
-
-      {/* 3D Content with Advanced Scroll Transform */}
-      <div
-        ref={contentRef}
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full text-white text-center"
-        style={{
-          transform: `translateY(${scrollY * 0.3}px) perspective(1200px) rotateX(${Math.min(
-            scrollY * 0.02,
-            8
-          )}deg)`,
-          opacity: Math.max(1 - scrollY / 1000, 0.2),
-        }}
-      >
+      {/* Content Overlay */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full text-center">
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
           className="space-y-8"
         >
-          {/* Main Title with Gradient Text Effect */}
-          <motion.h1
-            className="text-6xl sm:text-7xl lg:text-8xl font-black leading-tight drop-shadow-2xl"
-            style={{
-              textShadow: '0 15px 35px rgba(0, 0, 0, 0.9), 0 0 80px rgba(255, 152, 0, 0.3)',
-              letterSpacing: '-0.02em',
-              fontVariant: 'small-caps',
-            }}
+          {/* Main Title - Already in Banner */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="space-y-4"
           >
-            <span className="block">Vilas's</span>
-            <span className="block bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500 bg-clip-text text-transparent">
-              RestoCafe
-            </span>
-          </motion.h1>
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="text-2xl sm:text-3xl lg:text-4xl opacity-95 drop-shadow-lg font-light tracking-widest text-white"
+            >
+              Delicious Food For Every Mood
+            </motion.p>
+          </motion.div>
 
-          {/* Subtitle with Fade & Slide Animation */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="text-2xl sm:text-3xl lg:text-4xl opacity-95 drop-shadow-lg font-light tracking-widest"
-          >
-            Delicious Food For Every Mood
-          </motion.p>
-
-          {/* CTA Buttons with Advanced Hover Effects */}
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

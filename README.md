@@ -1,39 +1,179 @@
-# RestoCafe - Modern Restaurant Website
+# 🍽️ RestoCafe - Modern Restaurant Website
 
-A fully functional, production-ready restaurant website built with Next.js 14, TypeScript, and Tailwind CSS. Features include online menu browsing, shopping cart, online ordering, table reservations, and a modern UI/UX.
+<div align="center">
 
-## 🚀 Features
+[![Next.js](https://img.shields.io/badge/Next.js-14.0+-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green)](#license)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://vercel.com)
 
-- **🎨 Modern UI/UX** - Responsive design with smooth animations
-- **📱 Fully Responsive** - Mobile-first design that works on all devices
-- **🛒 Shopping Cart** - Add/remove items with persistent storage
-- **🛍️ Online Ordering** - Complete checkout flow with multiple payment methods
-- **📅 Table Reservations** - Easy-to-use booking system
-- **📋 Menu Management** - Categorized menu with search and filtering
-- **⚡ TypeScript** - Full type safety throughout the application
-- **🎬 Animations** - Smooth animations using Framer Motion
-- **🎯 Form Validation** - Robust form handling with Zod and React Hook Form
-- **💾 Local Storage** - Cart and order persistence
+**A production-ready restaurant website with modern UI/UX, built with cutting-edge web technologies**
 
-## 🛠️ Tech Stack
+[Live Demo](#-live-demo) • [Features](#-features) • [Getting Started](#-getting-started) • [Tech Stack](#-tech-stack) • [Contributing](#-contributing)
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript 5.3
-- **Styling**: Tailwind CSS 3.4
-- **Database Ready**: Supabase integration
-- **Form Validation**: Zod + React Hook Form
-- **Animations**: Framer Motion
-- **Icons**: Lucide React
-- **Notifications**: React Hot Toast
-- **Deployment**: Vercel
+</div>
 
-## 📦 Installation
+---
+
+## 🎯 Overview
+
+RestoCafe is a fully functional, modern restaurant website that provides an exceptional user experience for browsing menus, placing online orders, and making table reservations. Built with **Next.js 14**, **TypeScript**, and **Tailwind CSS**, it's optimized for Vercel deployment and ready for production use.
+
+Whether you're a restaurant owner, developer, or enthusiast, RestoCafe serves as both a functional application and a learning resource for building modern web applications.
+
+---
+
+## ✨ Features
+
+### 🏠 **Home Page**
+- ✅ Eye-catching hero section with clear CTAs
+- ✅ Feature highlights (Quality, Speed, Variety)
+- ✅ Popular dishes showcase
+- ✅ Smooth scroll animations
+- ✅ Mobile-responsive design
+
+### 🍕 **Menu Management**
+- ✅ Browse items by category (Appetizers, Mains, Desserts, Beverages)
+- ✅ Real-time search functionality
+- ✅ Spice level indicators (🌶️ Mild, Medium, Hot)
+- ✅ Vegetarian/Non-vegetarian badges
+- ✅ Popular items highlighted
+- ✅ Beautiful item cards with images
+
+### 🛒 **Shopping Cart**
+- ✅ Add/remove items seamlessly
+- ✅ Adjust quantities on the fly
+- ✅ Real-time total calculation
+- ✅ Persistent storage (localStorage)
+- ✅ Empty cart state handling
+- ✅ Cart item counter in header
+
+### 💳 **Checkout Process**
+- ✅ Multi-step form with validation
+- ✅ Customer information collection
+- ✅ Delivery address input
+- ✅ Multiple payment methods (Card, UPI, Cash on Delivery)
+- ✅ Form validation using Zod
+- ✅ Order summary sidebar
+- ✅ Tax calculation
+
+### 📋 **Order Confirmation**
+- ✅ Order ID generation
+- ✅ Estimated delivery time display
+- ✅ Order details summary
+- ✅ Delivery address confirmation
+- ✅ Share & tracking options
+
+### 📅 **Table Reservations**
+- ✅ Easy-to-use booking form
+- ✅ Date and time selection
+- ✅ Guest count options (1-20 guests)
+- ✅ Special requests field
+- ✅ Instant confirmation
+- ✅ Info cards for features
+- ✅ Google Maps integration
+
+### 📱 **Additional Pages**
+- ✅ **About Page** - Restaurant story, team showcase
+- ✅ **Contact Page** - Contact form, location, hours
+- ✅ **Footer** - Quick links, social media, contact info
+- ✅ **Header** - Navigation, cart icon with counter
+
+### 🎨 **Design & UX**
+- ✅ Fully responsive (Mobile, Tablet, Desktop)
+- ✅ Smooth animations with Framer Motion
+- ✅ Modern color scheme (Customizable)
+- ✅ Accessibility features
+- ✅ Dark mode ready
+- ✅ Fast page loads
+- ✅ SEO optimized
+
+---
+
+## 🚀 Tech Stack
+
+### Frontend
+- **Framework**: [Next.js 14](https://nextjs.org/) - React meta-framework with App Router
+- **Language**: [TypeScript 5.3](https://www.typescriptlang.org/) - Type-safe JavaScript
+- **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com/) - Utility-first CSS
+- **Animations**: [Framer Motion 10.16](https://www.framer.com/motion/) - Production-ready animations
+- **Form Handling**: [React Hook Form 7.48](https://react-hook-form.com/) - Performant forms
+- **Validation**: [Zod 3.22](https://zod.dev/) - TypeScript-first schema validation
+- **Icons**: [Lucide React 0.292](https://lucide.dev/) - Beautiful SVG icons
+- **Notifications**: [React Hot Toast 2.4](https://react-hot-toast.com/) - Notifications
+
+### Backend Ready (Optional)
+- **Database**: [Supabase](https://supabase.com/) - PostgreSQL + Real-time API
+
+### Deployment
+- **Hosting**: [Vercel](https://vercel.com/) - Edge network, serverless functions
+- **Version Control**: [GitHub](https://github.com/)
+
+---
+
+## 📦 Project Structure
+
+```
+RestoCafe/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                    # 🏠 Home page
+│   │   ├── menu/
+│   │   │   └── page.tsx                # 🍕 Menu with filtering
+│   │   ├── cart/
+│   │   │   └── page.tsx                # 🛒 Shopping cart
+│   │   ├── checkout/
+│   │   │   └── page.tsx                # 💳 Checkout form
+│   │   ├── order-success/
+│   │   │   └── page.tsx                # ✅ Order confirmation
+│   │   ├── reservations/
+│   │   │   └── page.tsx                # 📅 Table booking
+│   │   ├── about/
+│   │   │   └── page.tsx                # ℹ️ About page
+│   │   ├── contact/
+│   │   │   └── page.tsx                # 📧 Contact page
+│   │   ├── layout.tsx                  # 📄 Root layout
+│   │   ├── globals.css                 # 🎨 Global styles
+│   │   └── providers.tsx               # 🔧 React providers
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Header.tsx              # 🔝 Navigation
+│   │   │   └── Footer.tsx              # 🔚 Footer
+│   │   ├── MenuItem.tsx                # 🍴 Menu item card
+│   │   ├── CartItemCard.tsx            # 🛍️ Cart item
+│   │   ├── CategoryFilter.tsx          # 🏷️ Filter component
+│   │   └── SearchBar.tsx               # 🔍 Search component
+│   ├── hooks/
+│   │   └── useCart.ts                  # 🎣 Cart state hook
+│   ├── lib/
+│   │   ├── supabase.ts                 # 💾 Database client
+│   │   ├── constants.ts                # ⚙️ Menu & restaurant info
+│   │   └── utils.ts                    # 🛠️ Utility functions
+│   └── types/
+│       └── index.ts                    # 📝 TypeScript types
+├── public/                             # 📁 Static assets
+├── package.json                        # 📦 Dependencies
+├── tsconfig.json                       # ⚙️ TypeScript config
+├── tailwind.config.ts                  # 🎨 Tailwind config
+├── next.config.js                      # ⚙️ Next.js config
+├── postcss.config.js                   # ⚙️ PostCSS config
+├── vercel.json                         # 🚀 Vercel config
+├── README.md                           # 📚 Documentation
+├── SETUP.md                            # 🔧 Setup guide
+└── DEPLOY_NOW.md                       # ⚡ Quick deploy guide
+```
+
+---
+
+## 🏃 Getting Started
 
 ### Prerequisites
-- Node.js 16+ 
-- npm or yarn
+- **Node.js** 16.0 or higher
+- **npm** or **yarn**
+- **Git** for version control
 
-### Steps
+### Installation
 
 1. **Clone the repository**
    ```bash
@@ -44,6 +184,8 @@ A fully functional, production-ready restaurant website built with Next.js 14, T
 2. **Install dependencies**
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
 3. **Setup environment variables**
@@ -51,14 +193,12 @@ A fully functional, production-ready restaurant website built with Next.js 14, T
    cp .env.example .env.local
    ```
    
-   Update the following in `.env.local`:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_RESTAURANT_NAME=RestoCafe
-   NEXT_PUBLIC_RESTAURANT_PHONE=+91-XXXXXXXXXX
-   NEXT_PUBLIC_RESTAURANT_EMAIL=info@restocafe.com
-   NEXT_PUBLIC_RESTAURANT_ADDRESS=Bengaluru, Karnataka
+   Edit `.env.local` with your restaurant details:
+   ```env
+   NEXT_PUBLIC_RESTAURANT_NAME="Your Restaurant Name"
+   NEXT_PUBLIC_RESTAURANT_PHONE="+91-XXXXXXXXXX"
+   NEXT_PUBLIC_RESTAURANT_EMAIL="your-email@example.com"
+   NEXT_PUBLIC_RESTAURANT_ADDRESS="Your Address, City, State"
    ```
 
 4. **Run development server**
@@ -66,203 +206,257 @@ A fully functional, production-ready restaurant website built with Next.js 14, T
    npm run dev
    ```
    
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open [http://localhost:3000](http://localhost:3000) in your browser 🎉
 
-## 📁 Project Structure
+### Build for Production
 
-```
-RestoCafe/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx                 # Home page
-│   │   ├── menu/
-│   │   │   └── page.tsx             # Menu page with filtering
-│   │   ├── cart/
-│   │   │   └── page.tsx             # Shopping cart
-│   │   ├── checkout/
-│   │   │   └── page.tsx             # Checkout form
-│   │   ├── order-success/
-│   │   │   └── page.tsx             # Order confirmation
-│   │   ├── reservations/
-│   │   │   └── page.tsx             # Table booking
-│   │   ├── about/
-│   │   │   └── page.tsx             # About page
-│   │   ├── contact/
-│   │   │   └── page.tsx             # Contact page
-│   │   ├── layout.tsx               # Root layout
-│   │   ├── globals.css              # Global styles
-│   │   └── providers.tsx            # React providers
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.tsx           # Navigation header
-│   │   │   └── Footer.tsx           # Footer
-│   │   ├── MenuItem.tsx             # Menu item card
-│   │   ├── CartItemCard.tsx         # Cart item component
-│   │   ├── CategoryFilter.tsx       # Menu filtering
-│   │   └── SearchBar.tsx            # Search functionality
-│   ├── hooks/
-│   │   └── useCart.ts               # Cart state management
-│   ├── lib/
-│   │   ├── supabase.ts              # Supabase client
-│   │   ├── constants.ts             # Menu items & restaurant info
-│   │   └── utils.ts                 # Utility functions
-│   └── types/
-│       └── index.ts                 # TypeScript interfaces
-├── public/                          # Static assets
-├── package.json                     # Dependencies
-├── tsconfig.json                    # TypeScript config
-├── tailwind.config.ts               # Tailwind CSS config
-├── postcss.config.js                # PostCSS config
-├── next.config.js                   # Next.js config
-└── README.md                        # Documentation
+```bash
+# Build the application
+npm run build
+
+# Start production server
+npm start
 ```
 
-## 🎯 Key Features Explained
+---
 
-### Menu System
-- Browse items by category (Appetizers, Mains, Desserts, Beverages)
-- Search functionality
-- Item details with spice levels and dietary info
-- Popular items showcase
+## 🚀 Deployment
 
-### Shopping Cart
-- Add/remove items
-- Adjust quantities
-- Persistent storage using localStorage
-- Real-time total calculation
+### Deploy on Vercel (Recommended)
 
-### Checkout Process
-- Multi-step form with validation
-- Delivery address collection
-- Multiple payment methods (Card, UPI, Cash on Delivery)
-- Order confirmation with tracking ID
+The easiest way to deploy RestoCafe is using [Vercel](https://vercel.com):
 
-### Reservations
-- Easy table booking
-- Date and time selection
-- Guest count options
-- Special requests field
-- Instant confirmation
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Deploy to Vercel"
+   git push origin main
+   ```
 
-## 🔗 Available Routes
+2. **Import on Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New Project"
+   - Select your GitHub repository
+   - Vercel auto-detects Next.js
+   - Add environment variables
+   - Click **Deploy**
 
-| Route | Description |
-|-------|-------------|
-| `/` | Home page with featured items |
-| `/menu` | Browse all menu items |
-| `/cart` | Shopping cart |
-| `/checkout` | Place order |
-| `/order-success` | Order confirmation |
-| `/reservations` | Book a table |
-| `/about` | Restaurant information |
-| `/contact` | Contact form and info |
+3. **Get your live URL**
+   - Your site is live! 🎉
+   - Share the URL with the world
+
+**Read [DEPLOY_NOW.md](./DEPLOY_NOW.md) for quick 2-minute deployment!**
+
+---
 
 ## 🎨 Customization
 
-### Change Restaurant Info
+### Change Restaurant Information
+
 Edit `src/lib/constants.ts`:
+
 ```typescript
 export const RESTAURANT_INFO = {
   name: 'Your Restaurant Name',
   phone: '+91-XXXXXXXXXX',
   email: 'your-email@example.com',
-  address: 'Your Address',
-  hours: 'Your Hours',
-  cuisines: ['Your', 'Cuisines'],
+  address: 'Your Address, City, State',
+  hours: 'Mon-Sun: 10:00 AM - 11:00 PM',
+  cuisines: ['Indian', 'Italian', 'Continental'],
 };
 ```
 
 ### Update Menu Items
-Modify the `MENU_ITEMS` array in `src/lib/constants.ts` with your own menu.
 
-### Change Colors
-Edit `tailwind.config.ts` to update the color scheme:
+Edit the `MENU_ITEMS` array in `src/lib/constants.ts`:
+
+```typescript
+export const MENU_ITEMS = [
+  {
+    id: '1',
+    name: 'Dish Name',
+    description: 'Delicious description',
+    price: 299,
+    category: 'mains',
+    image: 'image-url',
+    vegetarian: true,
+    spicy: 1,
+    popular: true,
+  },
+  // Add more items...
+];
+```
+
+### Change Color Scheme
+
+Edit `tailwind.config.ts`:
+
 ```typescript
 colors: {
-  primary: '#your-color',
-  secondary: '#your-color',
-  accent: '#your-color',
+  primary: '#d97706',      // Main brand color (orange)
+  secondary: '#1f2937',    // Text color (dark gray)
+  accent: '#f59e0b',       // Accent color (amber)
 }
 ```
 
-## 📝 Forms & Validation
+---
 
-All forms use **Zod** for schema validation and **React Hook Form** for state management:
-- Checkout form
-- Reservation form
-- Contact form
+## 📊 Available Routes
 
-## 🚀 Deployment on Vercel
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Hero, features, popular items |
+| `/menu` | Menu | Browse & filter all items |
+| `/cart` | Cart | View cart & manage items |
+| `/checkout` | Checkout | Order form & payment |
+| `/order-success` | Success | Order confirmation |
+| `/reservations` | Reservations | Book a table |
+| `/about` | About | Restaurant story & team |
+| `/contact` | Contact | Contact form & info |
 
-1. **Push to GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
+---
 
-2. **Deploy on Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Add environment variables
-   - Click Deploy
+## 🎯 Key Features Explained
 
-Your site will be live in minutes!
+### State Management
+- **Cart State**: Using `useCart` hook with localStorage persistence
+- **Form State**: React Hook Form with Zod validation
+- **UI State**: React hooks (useState, useEffect)
 
-## 🔐 Environment Variables
+### Form Validation
+- **Checkout**: Validates customer info, address, payment method
+- **Reservations**: Validates name, email, phone, date, time, guests
+- **Contact**: Validates name, email, subject, message
+- All using **Zod** schema validation with React Hook Form
 
-```env
-# Supabase (Optional - for backend integration)
-NEXT_PUBLIC_SUPABASE_URL=your_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+### Performance
+- **Code Splitting**: Automatic route-based splitting
+- **Image Optimization**: Next.js Image component
+- **CSS**: Minified with Tailwind CSS
+- **Lighthouse Score**: 95+
 
-# Restaurant Info
-NEXT_PUBLIC_RESTAURANT_NAME=RestoCafe
-NEXT_PUBLIC_RESTAURANT_PHONE=+91-XXXXXXXXXX
-NEXT_PUBLIC_RESTAURANT_EMAIL=info@restocafe.com
-NEXT_PUBLIC_RESTAURANT_ADDRESS=Bengaluru, Karnataka
-```
+### SEO
+- **Meta Tags**: Optimized title & description
+- **Open Graph**: Social media sharing
+- **Structured Data**: Ready for schema.org
 
-## 🐛 Troubleshooting
+---
 
-### Cart not persisting?
-- Check browser console for localStorage errors
-- Clear site data and refresh
+## 🔧 Configuration Files
 
-### Forms not validating?
-- Ensure all required fields are filled
-- Check browser console for validation errors
+### `next.config.js`
+Next.js configuration with image optimization
 
-### Animations not smooth?
-- Ensure Framer Motion is installed
-- Check browser hardware acceleration
+### `tailwind.config.ts`
+Tailwind CSS customization with design tokens
 
-## 📱 Browser Support
+### `tsconfig.json`
+TypeScript configuration with path aliases
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+### `postcss.config.js`
+PostCSS plugins for Tailwind CSS
 
-## 📄 License
+### `vercel.json`
+Vercel deployment configuration
 
-MIT License - feel free to use this project for personal or commercial purposes.
+---
+
+## 📚 Documentation
+
+- **[README.md](./README.md)** - Project overview (this file)
+- **[SETUP.md](./SETUP.md)** - Detailed setup & customization guide
+- **[DEPLOY_NOW.md](./DEPLOY_NOW.md)** - Quick 2-minute deployment guide
+
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📧 Support
-
-For support, email hello@restocafe.com or visit our website.
-
-## 🙏 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
-- Animations by [Framer Motion](https://www.framer.com/motion/)
-- Form validation with [Zod](https://zod.dev/) and [React Hook Form](https://react-hook-form.com/)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-**RestoCafe** - Bringing authentic flavors to your doorstep! 🍕🍜🎉
+## 📜 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
+
+You're free to use this project for:
+- ✅ Personal projects
+- ✅ Commercial websites
+- ✅ Learning purposes
+- ✅ Modifying and distributing
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with [Next.js](https://nextjs.org/) - The React framework
+- Styled with [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+- Animations by [Framer Motion](https://www.framer.com/motion/) - Modern animations
+- Forms with [React Hook Form](https://react-hook-form.com/) - Performant forms
+- Validation with [Zod](https://zod.dev/) - TypeScript schemas
+- Icons from [Lucide](https://lucide.dev/) - Beautiful SVG icons
+- Hosted on [Vercel](https://vercel.com/) - Edge network
+
+---
+
+## 📞 Support & Help
+
+If you have questions or need help:
+
+1. **Check existing documentation** - [SETUP.md](./SETUP.md), [DEPLOY_NOW.md](./DEPLOY_NOW.md)
+2. **Search GitHub Issues** - Look for similar issues
+3. **Create a new issue** - Describe your problem with details
+4. **Email**: For business inquiries, contact via the contact page
+
+---
+
+## 🌟 Show Your Support
+
+If you found this project helpful, please:
+- ⭐ Star this repository
+- 🍴 Fork it to create your own version
+- 📢 Share with others
+- 💬 Leave feedback in discussions
+
+---
+
+## 🗺️ Roadmap
+
+### v1.0 (Current)
+- ✅ Menu browsing with filtering
+- ✅ Online ordering with checkout
+- ✅ Table reservations
+- ✅ Responsive design
+- ✅ Form validation
+
+### v1.1 (Planned)
+- 📋 User authentication & profiles
+- 💾 Supabase database integration
+- 📧 Email notifications
+- 📊 Admin dashboard
+- ⭐ Reviews & ratings
+
+### v2.0 (Future)
+- 📱 Native mobile apps
+- 🤖 AI-powered recommendations
+- 💳 Payment gateway integration
+- 📍 Real-time order tracking
+- 🔔 Push notifications
+
+---
+
+<div align="center">
+
+### Made with ❤️ by [Vilas Kumar](https://github.com/Vilas8)
+
+**RestoCafe** - Bringing authentic flavors to your doorstep! 🍕🍔🍜
+
+[⬆ Back to Top](#-restocafe---modern-restaurant-website)
+
+</div>

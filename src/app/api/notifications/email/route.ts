@@ -22,56 +22,73 @@ export async function POST(request: NextRequest) {
     const sendgridKey = process.env.SENDGRID_API_KEY;
 
     if (resendKey) {
-      // Use Resend (Recommended)
-      const { Resend } = await import('resend');
-      const resend = new Resend(resendKey);
+      try {
+        // Use Resend (Recommended)
+        const { Resend } = require('resend');
+        const resend = new Resend(resendKey);
 
-      const result = await resend.emails.send({
-        from: emailData.from || 'RestoCafe <onboarding@resend.dev>', // Update this after domain verification
-        to: emailData.to,
-        subject: emailData.subject,
-        html: emailData.html || emailData.text || '',
-        text: emailData.text,
-      });
+        const result = await resend.emails.send({
+          from: 'RestoCafe <onboarding@resend.dev>',
+          to: emailData.to,
+          subject: emailData.subject,
+          html: emailData.html || emailData.text || '',
+          text: emailData.text,
+        });
 
-      console.log('✅ Email sent via Resend:', result);
-      return NextResponse.json(
-        { success: true, message: 'Email sent successfully', data: result },
-        { status: 200 }
-      );
+        console.log('✅ Email sent via Resend:', result);
+        return NextResponse.json(
+          { success: true, message: 'Email sent successfully via Resend', data: result },
+          { status: 200 }
+        );
+      } catch (resendError: any) {
+        console.error('❌ Resend error:', resendError);
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Resend error: ' + resendError.message,
+            error: resendError.message,
+          },
+          { status: 500 }
+        );
+      }
     } else if (sendgridKey) {
-      // Use SendGrid (Alternative)
-      const sgMail = await import('@sendgrid/mail');
-      sgMail.default.setApiKey(sendgridKey);
+      try {
+        // Use SendGrid (Alternative)
+        const sgMail = require('@sendgrid/mail');
+        sgMail.setApiKey(sendgridKey);
 
-      await sgMail.default.send({
-        to: emailData.to,
-        from: emailData.from || 'noreply@yourdomain.com', // Must be verified in SendGrid
-        subject: emailData.subject,
-        html: emailData.html || emailData.text || '',
-        text: emailData.text,
-      });
+        await sgMail.send({
+          to: emailData.to,
+          from: 'noreply@yourdomain.com', // Must be verified in SendGrid
+          subject: emailData.subject,
+          html: emailData.html || emailData.text || '',
+          text: emailData.text,
+        });
 
-      console.log('✅ Email sent via SendGrid');
-      return NextResponse.json(
-        { success: true, message: 'Email sent successfully' },
-        { status: 200 }
-      );
+        console.log('✅ Email sent via SendGrid');
+        return NextResponse.json(
+          { success: true, message: 'Email sent successfully via SendGrid' },
+          { status: 200 }
+        );
+      } catch (sendgridError: any) {
+        console.error('❌ SendGrid error:', sendgridError);
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'SendGrid error: ' + sendgridError.message,
+            error: sendgridError.message,
+          },
+          { status: 500 }
+        );
+      }
     } else {
       // No email service configured
-      console.warn('⚠️ No email service configured. Email would be sent to:', emailData.to);
-      console.log('Email data:', emailData);
+      console.warn('⚠️ No email service configured');
       
       return NextResponse.json(
         { 
           success: false, 
           message: 'Email service not configured. Please add RESEND_API_KEY or SENDGRID_API_KEY to environment variables.',
-          debug: {
-            to: emailData.to,
-            subject: emailData.subject,
-            hasHtml: !!emailData.html,
-            hasText: !!emailData.text,
-          }
         },
         { status: 503 }
       );
@@ -83,6 +100,7 @@ export async function POST(request: NextRequest) {
         success: false, 
         message: 'Failed to send email',
         error: error.message || 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
     );

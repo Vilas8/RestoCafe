@@ -23,41 +23,49 @@ export async function POST(request: NextRequest) {
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
     if (!accountSid || !authToken || !twilioPhone) {
-      console.warn('⚠️ Twilio not configured. SMS would be sent to:', smsData.to);
-      console.log('SMS message:', smsData.message);
+      console.warn('⚠️ Twilio not configured');
       
       return NextResponse.json(
         { 
           success: false, 
           message: 'SMS service not configured. Please add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to environment variables.',
-          debug: {
-            to: smsData.to,
-            message: smsData.message,
-          }
         },
         { status: 503 }
       );
     }
 
-    // Use Twilio
-    const twilio = await import('twilio');
-    const client = twilio.default(accountSid, authToken);
+    try {
+      // Use Twilio
+      const twilio = require('twilio');
+      const client = twilio(accountSid, authToken);
 
-    const result = await client.messages.create({
-      body: smsData.message,
-      from: twilioPhone,
-      to: smsData.to,
-    });
+      const result = await client.messages.create({
+        body: smsData.message,
+        from: twilioPhone,
+        to: smsData.to,
+      });
 
-    console.log('✅ SMS sent via Twilio:', result.sid);
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'SMS sent successfully',
-        data: { sid: result.sid, status: result.status }
-      },
-      { status: 200 }
-    );
+      console.log('✅ SMS sent via Twilio:', result.sid);
+      return NextResponse.json(
+        { 
+          success: true, 
+          message: 'SMS sent successfully via Twilio',
+          data: { sid: result.sid, status: result.status }
+        },
+        { status: 200 }
+      );
+    } catch (twilioError: any) {
+      console.error('❌ Twilio error:', twilioError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Twilio error: ' + twilioError.message,
+          error: twilioError.message,
+          code: twilioError.code,
+        },
+        { status: 500 }
+      );
+    }
   } catch (error: any) {
     console.error('❌ Failed to send SMS:', error);
     return NextResponse.json(
@@ -65,6 +73,7 @@ export async function POST(request: NextRequest) {
         success: false, 
         message: 'Failed to send SMS',
         error: error.message || 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
     );

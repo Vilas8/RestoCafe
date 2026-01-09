@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Calendar, Clock, Users, Mail, Phone } from 'lucide-react';
+import { Calendar, Clock, Users, Mail, Phone, Sparkles } from 'lucide-react';
+import { RESTAURANT_INFO } from '@/lib/constants';
 
 const reservationSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
@@ -26,8 +27,45 @@ const reservationSchema = z.object({
 
 type ReservationForm = z.infer<typeof reservationSchema>;
 
+function Confetti() {
+  const confetti = Array.from({ length: 40 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 0.3,
+    duration: 2 + Math.random() * 1,
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none">
+      {confetti.map((conf) => (
+        <motion.div
+          key={conf.id}
+          className="absolute w-3 h-3 rounded-full"
+          initial={{
+            left: `${conf.left}%`,
+            top: -10,
+            opacity: 1,
+            backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA500', '#FF69B4'][Math.floor(Math.random() * 5)],
+          }}
+          animate={{
+            top: '100vh',
+            opacity: 0,
+            rotate: Math.random() * 360,
+          }}
+          transition={{
+            duration: conf.duration,
+            delay: conf.delay,
+            ease: 'easeIn',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ReservationsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ReservationForm>({
     resolver: zodResolver(reservationSchema),
   });
@@ -43,7 +81,7 @@ export default function ReservationsPage() {
         id: `RES-${Date.now()}`,
         ...data,
         createdAt: new Date().toISOString(),
-        status: 'pending' as const,
+        status: 'confirmed' as const,
       };
 
       const reservations = JSON.parse(
@@ -52,8 +90,15 @@ export default function ReservationsPage() {
       reservations.push(reservation);
       localStorage.setItem('restocafe-reservations', JSON.stringify(reservations));
 
-      toast.success('Reservation confirmed! We look forward to your visit.');
+      setShowCelebration(true);
+      toast.success('🎉 Reservation confirmed! We look forward to your visit.', {
+        duration: 4,
+        icon: '✨',
+      });
       reset();
+
+      // Hide celebration after animation
+      setTimeout(() => setShowCelebration(false), 3000);
     } catch (error) {
       toast.error('Failed to process reservation. Please try again.');
     } finally {
@@ -62,16 +107,18 @@ export default function ReservationsPage() {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gray-50">
+    <div className="min-h-screen py-12 bg-gray-50 relative">
+      {showCelebration && <Confetti />}
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold text-secondary mb-4">Book a Table</h1>
+          <h1 className="text-5xl font-bold text-secondary mb-4">📅 Book a Table</h1>
           <p className="text-xl text-gray-600">
-            Reserve your spot at RestoCafe for a memorable dining experience
+            Reserve your spot at {RESTAURANT_INFO.name} for a memorable dining experience
           </p>
         </motion.div>
 
@@ -81,9 +128,12 @@ export default function ReservationsPage() {
             onSubmit={handleSubmit(onSubmit)}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-lg card-shadow p-8"
+            className="bg-white rounded-lg card-shadow p-8 hover:shadow-2xl transition-shadow"
           >
-            <h2 className="text-2xl font-bold text-secondary mb-6">Reservation Details</h2>
+            <h2 className="text-2xl font-bold text-secondary mb-6 flex items-center gap-2">
+              <Sparkles size={24} className="text-primary" />
+              Reservation Details
+            </h2>
 
             {/* Name */}
             <div className="mb-4">
@@ -93,7 +143,7 @@ export default function ReservationsPage() {
               <input
                 {...register('name')}
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="John Doe"
               />
               {errors.name && (
@@ -109,7 +159,7 @@ export default function ReservationsPage() {
               <input
                 {...register('email')}
                 type="email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="john@example.com"
               />
               {errors.email && (
@@ -125,7 +175,7 @@ export default function ReservationsPage() {
               <input
                 {...register('phone')}
                 type="tel"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="9876543210"
               />
               {errors.phone && (
@@ -141,7 +191,7 @@ export default function ReservationsPage() {
               <input
                 {...register('date')}
                 type="date"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
               />
               {errors.date && (
                 <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
@@ -155,7 +205,7 @@ export default function ReservationsPage() {
               </label>
               <select
                 {...register('time')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
               >
                 <option value="">Select time</option>
                 {Array.from({ length: 18 }).map((_, i) => {
@@ -181,7 +231,7 @@ export default function ReservationsPage() {
               </label>
               <select
                 {...register('guests')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
               >
                 <option value="">Select guests</option>
                 {Array.from({ length: 20 }).map((_, i) => (
@@ -202,19 +252,21 @@ export default function ReservationsPage() {
               </label>
               <textarea
                 {...register('specialRequests')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="Any special occasions or dietary preferences?"
                 rows={4}
               />
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed font-bold bg-gradient-to-r from-primary to-accent hover:shadow-lg transition-all"
             >
-              {isSubmitting ? 'Booking...' : 'Confirm Reservation'}
-            </button>
+              {isSubmitting ? '⏳ Booking...' : '✨ Confirm Reservation'}
+            </motion.button>
           </motion.form>
 
           {/* Info Cards */}
@@ -232,7 +284,7 @@ export default function ReservationsPage() {
               {
                 icon: Clock,
                 title: 'Available Hours',
-                description: 'We are open from 10:00 AM to 11:00 PM daily',
+                description: `We are open from 10:00 AM to 11:00 PM daily`,
               },
               {
                 icon: Users,
@@ -251,7 +303,8 @@ export default function ReservationsPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-lg card-shadow p-6"
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-lg card-shadow p-6 hover:shadow-lg transition-all"
               >
                 <div className="flex items-start space-x-4">
                   <info.icon className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
@@ -263,23 +316,30 @@ export default function ReservationsPage() {
               </motion.div>
             ))}
 
-            {/* Contact Info */}
+            {/* Contact Info with Env Values */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-primary to-accent text-white rounded-lg p-6 text-center"
+              className="bg-gradient-to-br from-primary to-accent text-white rounded-lg p-6 text-center card-shadow hover:shadow-2xl transition-all"
             >
-              <h3 className="text-xl font-bold mb-4">Need Help?</h3>
-              <div className="space-y-2">
-                <p className="flex items-center justify-center gap-2">
+              <h3 className="text-xl font-bold mb-2 flex items-center justify-center gap-2">
+                <Phone size={20} />
+                Need Help?
+              </h3>
+              <div className="space-y-3 text-white/95">
+                <p className="flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
                   <Phone size={18} />
-                  +91-8899776655
+                  <a href={`tel:${RESTAURANT_INFO.phone}`} className="font-semibold hover:underline">
+                    {RESTAURANT_INFO.phone}
+                  </a>
                 </p>
-                <p className="flex items-center justify-center gap-2">
+                <p className="flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
                   <Mail size={18} />
-                  reservations@restocafe.com
+                  <a href={`mailto:${RESTAURANT_INFO.email}`} className="font-semibold hover:underline">
+                    {RESTAURANT_INFO.email}
+                  </a>
                 </p>
               </div>
             </motion.div>

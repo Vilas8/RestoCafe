@@ -61,7 +61,7 @@ function HeroSection() {
         }}
       >
         <Image
-          src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/863d7629-39d3-484e-8f9e-ecd459a37c81"
+          src="https://i.ibb.co/ZpRSTcnW/hero-background.jpg"
           alt="RestoCafe Hero Banner"
           fill
           className="object-cover object-center"

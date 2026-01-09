@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Award, Users, Clock, Leaf } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { RESTAURANT_INFO } from '@/lib/constants';
 
 const features = [
@@ -124,9 +125,21 @@ export default function AboutPage() {
         </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { name: 'Chef Rajesh Kumar', role: 'Head Chef' },
-            { name: 'Priya Sharma', role: 'Manager' },
-            { name: 'Arjun Singh', role: 'Chef' },
+            { 
+              name: 'Chef Rajesh Kumar', 
+              role: 'Head Chef',
+              avatar: 'https://i.pravatar.cc/150?img=12'
+            },
+            { 
+              name: 'Priya Sharma', 
+              role: 'Manager',
+              avatar: 'https://i.pravatar.cc/150?img=47'
+            },
+            { 
+              name: 'Arjun Singh', 
+              role: 'Chef',
+              avatar: 'https://i.pravatar.cc/150?img=33'
+            },
           ].map((member, i) => (
             <motion.div
               key={i}
@@ -137,7 +150,14 @@ export default function AboutPage() {
               whileHover={{ y: -10 }}
               className="bg-gray-50 rounded-lg card-shadow p-8 text-center hover:shadow-lg transition-all"
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full mx-auto mb-4" />
+              <div className="relative w-24 h-24 mx-auto mb-4">
+                <Image
+                  src={member.avatar}
+                  alt={member.name}
+                  fill
+                  className="rounded-full object-cover"
+                />
+              </div>
               <h3 className="text-xl font-bold text-secondary mb-1">{member.name}</h3>
               <p className="text-primary font-semibold">{member.role}</p>
             </motion.div>

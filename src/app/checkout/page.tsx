@@ -62,6 +62,8 @@ export default function CheckoutPage() {
   }
 
   const sendOrderNotifications = async (order: any) => {
+    console.log('🔔 Sending notifications for order:', order.id);
+    
     try {
       // Send Email Notification
       const emailPromise = fetch('/api/notifications/email', {
@@ -105,7 +107,7 @@ export default function CheckoutPage() {
         }),
       });
 
-      // Send WhatsApp Notification (Primary)
+      // Send WhatsApp Notification
       const whatsappPromise = fetch('/api/notifications/whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,46 +120,58 @@ export default function CheckoutPage() {
       // Wait for notifications
       const [emailResult, whatsappResult] = await Promise.allSettled([emailPromise, whatsappPromise]);
 
-      let successCount = 0;
-      let failCount = 0;
-
+      const notifications = [];
+      let emailSuccess = false;
+      let whatsappSuccess = false;
+      
       // Check email result
       if (emailResult.status === 'fulfilled') {
-        const emailData = await emailResult.value.json();
-        if (emailData.success) {
-          console.log('✅ Email sent');
-          successCount++;
-        } else {
-          console.warn('⚠️ Email failed:', emailData.message);
-          failCount++;
+        try {
+          const emailData = await emailResult.value.json();
+          if (emailData.success) {
+            console.log('✅ Email sent successfully');
+            emailSuccess = true;
+            notifications.push('📧 Email');
+          } else {
+            console.warn('⚠️ Email failed:', emailData.message);
+          }
+        } catch (e) {
+          console.error('Email result parse error:', e);
         }
+      } else {
+        console.error('❌ Email request failed:', emailResult.reason);
       }
 
       // Check WhatsApp result
       if (whatsappResult.status === 'fulfilled') {
-        const whatsappData = await whatsappResult.value.json();
-        if (whatsappData.success) {
-          console.log('✅ WhatsApp sent');
-          successCount++;
-        } else {
-          console.warn('⚠️ WhatsApp failed:', whatsappData.message);
-          failCount++;
+        try {
+          const whatsappData = await whatsappResult.value.json();
+          if (whatsappData.success) {
+            console.log('✅ WhatsApp sent successfully');
+            whatsappSuccess = true;
+            notifications.push('📱 WhatsApp');
+          } else {
+            console.warn('⚠️ WhatsApp failed:', whatsappData.message);
+            if (whatsappData.helpUrl) {
+              console.log('👉 Setup help:', whatsappData.helpUrl);
+            }
+          }
+        } catch (e) {
+          console.error('WhatsApp result parse error:', e);
         }
+      } else {
+        console.error('❌ WhatsApp request failed:', whatsappResult.reason);
       }
 
-      // Show appropriate toast
-      if (successCount > 0) {
-        const channels = [];
-        if (emailResult.status === 'fulfilled' && (await emailResult.value.json()).success) channels.push('📧 Email');
-        if (whatsappResult.status === 'fulfilled' && (await whatsappResult.value.json()).success) channels.push('📱 WhatsApp');
-        toast.success(`Sent: ${channels.join(' & ')}!`);
-      }
-
-      if (failCount === 2) {
-        toast.error('⚠️ Notifications failed, but order was placed successfully');
+      // Show result to user
+      if (notifications.length > 0) {
+        toast.success(`Sent: ${notifications.join(' & ')}!`, { duration: 4000 });
+      } else {
+        toast.error('⚠️ Notifications failed. Check browser console for details.', { duration: 5000 });
       }
     } catch (error) {
-      console.error('Notification error:', error);
+      console.error('❌ Notification error:', error);
+      toast.error('⚠️ Could not send notifications');
     }
   };
 
@@ -182,15 +196,17 @@ export default function CheckoutPage() {
       orders.push(order);
       localStorage.setItem('restocafe-orders', JSON.stringify(orders));
 
-      // Send notifications
-      sendOrderNotifications(order);
-
       toast.success('Order placed successfully!');
+      
+      // Send notifications asynchronously
+      sendOrderNotifications(order);
+      
       clearCart();
 
       // Redirect to success page
       router.push(`/order-success?orderId=${order.id}`);
     } catch (error) {
+      console.error('Checkout error:', error);
       toast.error('Failed to process order. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -297,7 +313,8 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-lg mt-4 pt-4 border-t-2"><span className="font-bold text-secondary">Total Amount</span><span className="font-bold text-primary text-2xl">{formatPrice(total * 1.05)}</span></div>
             </div>
             <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-sm text-green-800">✅ 📧 Email & 📱 WhatsApp confirmations will be sent</p>
+              <p className="text-sm text-green-800 font-medium">✅ 📧 Email & 📱 WhatsApp</p>
+              <p className="text-xs text-green-600 mt-1">Check console after ordering</p>
             </div>
           </motion.div>
         </div>

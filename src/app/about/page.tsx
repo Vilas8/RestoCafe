@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Award, Users, Clock, Leaf } from 'lucide-react';
 import Link from 'next/link';
+import { RESTAURANT_INFO } from '@/lib/constants';
 
 const features = [
   {
@@ -38,7 +39,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl font-bold mb-6 text-center"
           >
-            About RestoCafe
+            About {RESTAURANT_INFO.name}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -62,7 +63,7 @@ export default function AboutPage() {
           <div>
             <h2 className="text-4xl font-bold text-secondary mb-6">Our Story</h2>
             <p className="text-gray-600 text-lg leading-relaxed mb-4">
-              RestoCafe began as a dream to bring authentic culinary experiences to the heart of Bengaluru. What started as a small kitchen has grown into a beloved restaurant known for its diverse menu and warm hospitality.
+              {RESTAURANT_INFO.name} began as a dream to bring authentic culinary experiences to the heart of Bengaluru. What started as a small kitchen has grown into a beloved restaurant known for its diverse menu and warm hospitality.
             </p>
             <p className="text-gray-600 text-lg leading-relaxed">
               We believe in using the freshest ingredients, employing traditional cooking methods, and infusing modern creativity into every dish we serve. Every meal is a celebration of flavors.
@@ -73,7 +74,7 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             src="https://images.unsplash.com/photo-1504674900967-a8fb7a91c537?w=600&h=400&fit=crop"
-            alt="RestoCafe Restaurant"
+            alt={`${RESTAURANT_INFO.name} Restaurant`}
             className="rounded-lg card-shadow"
           />
         </motion.div>
@@ -99,7 +100,8 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white p-6 rounded-lg card-shadow text-center"
+                whileHover={{ y: -10 }}
+                className="bg-white p-6 rounded-lg card-shadow text-center hover:shadow-lg transition-all"
               >
                 <feature.icon className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-secondary mb-3">{feature.title}</h3>
@@ -132,7 +134,8 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-gray-50 rounded-lg card-shadow p-8 text-center"
+              whileHover={{ y: -10 }}
+              className="bg-gray-50 rounded-lg card-shadow p-8 text-center hover:shadow-lg transition-all"
             >
               <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full mx-auto mb-4" />
               <h3 className="text-xl font-bold text-secondary mb-1">{member.name}</h3>
@@ -147,13 +150,13 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-4xl font-bold mb-6">Ready to Taste Excellence?</h2>
           <p className="text-xl opacity-90 mb-8">
-            Book a table or place an order now and experience the RestoCafe difference
+            Book a table or place an order now and experience the {RESTAURANT_INFO.name} difference
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/menu" className="btn-primary text-lg px-8 py-4 bg-primary text-white hover:bg-orange-700">
+            <Link href="/menu" className="btn-primary text-lg px-8 py-4 bg-primary text-white hover:bg-orange-700 font-bold">
               View Menu
             </Link>
-            <Link href="/reservations" className="btn-outline text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-secondary">
+            <Link href="/reservations" className="btn-outline text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-secondary font-bold">
               Book Now
             </Link>
           </div>

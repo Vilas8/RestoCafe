@@ -7,13 +7,11 @@ import { Bell, Mail, MessageSquare, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface NotificationSettingsProps {
-  userId: string;
   initialPreferences: NotificationPreferences;
   onSave: (preferences: NotificationPreferences) => Promise<void>;
 }
 
 export default function NotificationSettings({
-  userId,
   initialPreferences,
   onSave,
 }: NotificationSettingsProps) {

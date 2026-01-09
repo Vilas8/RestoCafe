@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Calendar, Clock, Users, Mail, Phone } from 'lucide-react';
-import Link from 'next/link';
 
 const reservationSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),

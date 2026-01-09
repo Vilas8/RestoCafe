@@ -18,6 +18,11 @@ function formatPhoneNumber(phoneNumber: string): string {
     }
   }
   
+  // If no +, add +91 for Indian numbers
+  if (!cleaned.startsWith('+') && cleaned.length === 10) {
+    cleaned = '+91' + cleaned;
+  }
+  
   return cleaned;
 }
 
@@ -47,17 +52,10 @@ async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   console.log('   Original phone:', phone);
   console.log('   Cleaned phone:', cleanedPhone);
   console.log('   Message length:', message.length);
-  console.log('   API Key present:', !!apiKey);
-  console.log('   API Key length:', apiKey?.length || 0);
   
   // Validate phone number
   if (cleanedPhone.length !== 10) {
-    throw new Error(`Invalid phone number format. Expected 10 digits, got ${cleanedPhone.length}. Cleaned: ${cleanedPhone}`);
-  }
-  
-  // Validate API key
-  if (!apiKey || apiKey.length < 10) {
-    throw new Error('Invalid API key - too short or missing');
+    throw new Error(`Invalid phone number format. Expected 10 digits, got ${cleanedPhone.length}`);
   }
   
   // Fast2SMS API endpoint
@@ -65,7 +63,7 @@ async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   
   // Prepare request body as JSON
   const requestBody = {
-    route: 'p', // promotional route
+    route: 'p',
     sender_id: 'FSTSMS',
     message: message,
     language: 'english',
@@ -73,45 +71,62 @@ async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
     numbers: cleanedPhone
   };
 
-  console.log('📱 Fast2SMS - Request body:', JSON.stringify(requestBody));
-  console.log('📱 Fast2SMS - Calling API with authorization header...');
+  console.log('📱 Fast2SMS - Calling API...');
   
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'authorization': apiKey, // API key in header
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-      },
-      body: JSON.stringify(requestBody),
-    });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'authorization': apiKey,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+    },
+    body: JSON.stringify(requestBody),
+  });
 
-    const data = await response.json();
-    
-    console.log('📱 Fast2SMS - Response status:', response.status);
-    console.log('📱 Fast2SMS - Response data:', JSON.stringify(data, null, 2));
-    
-    // Check for success
-    if (!response.ok) {
-      throw new Error(`Fast2SMS API error (${response.status}): ${data.message || response.statusText}`);
-    }
-    
-    // Fast2SMS returns return: true on success
-    if (data.return === false) {
-      throw new Error(data.message || 'Fast2SMS returned failure status');
-    }
-
-    return data;
-  } catch (fetchError: any) {
-    console.error('📱 Fast2SMS - Fetch error:', fetchError);
-    throw fetchError;
+  const data = await response.json();
+  
+  console.log('📱 Fast2SMS - Response:', response.status, data);
+  
+  if (!response.ok || data.return === false) {
+    throw new Error(data.message || 'Fast2SMS API error');
   }
+
+  return data;
+}
+
+/**
+ * Send SMS via Twilio
+ */
+async function sendViaTwilio(
+  phone: string, 
+  message: string, 
+  accountSid: string, 
+  authToken: string, 
+  twilioPhone: string
+) {
+  const formattedPhone = formatPhoneNumber(phone);
+  
+  console.log('📱 Twilio Debug Info:');
+  console.log('   Original phone:', phone);
+  console.log('   Formatted phone:', formattedPhone);
+  console.log('   From:', twilioPhone);
+  
+  const twilio = require('twilio');
+  const client = twilio(accountSid, authToken);
+
+  const result = await client.messages.create({
+    body: message,
+    from: twilioPhone,
+    to: formattedPhone,
+  });
+
+  console.log('✅ Twilio result:', result.sid, result.status);
+  return result;
 }
 
 /**
  * API Route: Send SMS notification
- * Supports Fast2SMS (recommended for India) or Twilio
+ * Prioritizes Twilio (more reliable), falls back to Fast2SMS
  */
 export async function POST(request: NextRequest) {
   try {
@@ -138,24 +153,90 @@ export async function POST(request: NextRequest) {
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
     console.log('🔧 SMS Service Configuration:');
-    console.log('   Fast2SMS configured:', !!fast2smsKey);
-    console.log('   Fast2SMS key length:', fast2smsKey?.length || 0);
     console.log('   Twilio configured:', !!(accountSid && authToken && twilioPhone));
+    console.log('   Fast2SMS configured:', !!fast2smsKey);
 
-    // Prioritize Fast2SMS for Indian numbers
-    if (fast2smsKey) {
+    // Prioritize Twilio (more reliable and you have credits)
+    if (accountSid && authToken && twilioPhone) {
+      try {
+        console.log('📱 Attempting to send SMS via Twilio...');
+        
+        const result = await sendViaTwilio(
+          smsData.to, 
+          smsData.message, 
+          accountSid, 
+          authToken, 
+          twilioPhone
+        );
+
+        console.log('✅ SMS sent via Twilio successfully');
+        
+        return NextResponse.json(
+          { 
+            success: true, 
+            message: 'SMS sent successfully via Twilio',
+            service: 'Twilio',
+            data: { 
+              sid: result.sid, 
+              status: result.status,
+              to: formatPhoneNumber(smsData.to),
+            },
+            debug: {
+              timestamp: new Date().toISOString()
+            }
+          },
+          { status: 200 }
+        );
+      } catch (twilioError: any) {
+        console.error('❌ Twilio error:', twilioError);
+        console.log('⚠️ Twilio failed, trying Fast2SMS as fallback...');
+        
+        // Try Fast2SMS as fallback
+        if (fast2smsKey) {
+          try {
+            const result = await sendViaFast2SMS(smsData.to, smsData.message, fast2smsKey);
+            console.log('✅ SMS sent via Fast2SMS (fallback) successfully');
+            
+            return NextResponse.json(
+              { 
+                success: true, 
+                message: 'SMS sent successfully via Fast2SMS (fallback)',
+                service: 'Fast2SMS',
+                data: result,
+                note: 'Twilio failed, used Fast2SMS as backup'
+              },
+              { status: 200 }
+            );
+          } catch (fast2smsError: any) {
+            console.error('❌ Fast2SMS fallback also failed:', fast2smsError);
+          }
+        }
+        
+        // Both failed
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Twilio error: ' + twilioError.message,
+            error: twilioError.message,
+            code: twilioError.code,
+          },
+          { status: 500 }
+        );
+      }
+    } else if (fast2smsKey) {
+      // Use Fast2SMS if Twilio not configured
       try {
         console.log('📱 Attempting to send SMS via Fast2SMS...');
         
         const result = await sendViaFast2SMS(smsData.to, smsData.message, fast2smsKey);
 
         console.log('✅ SMS sent via Fast2SMS successfully');
-        console.log('   Result:', JSON.stringify(result));
         
         return NextResponse.json(
           { 
             success: true, 
             message: 'SMS sent successfully via Fast2SMS',
+            service: 'Fast2SMS',
             data: result,
             debug: {
               to: smsData.to,
@@ -167,60 +248,12 @@ export async function POST(request: NextRequest) {
         );
       } catch (fast2smsError: any) {
         console.error('❌ Fast2SMS error:', fast2smsError);
-        console.error('   Error message:', fast2smsError.message);
-        console.error('   Error stack:', fast2smsError.stack);
         
         return NextResponse.json(
           { 
             success: false, 
             message: 'Fast2SMS error: ' + fast2smsError.message,
             error: fast2smsError.message,
-            debug: {
-              to: smsData.to,
-              cleaned: cleanPhoneForFast2SMS(smsData.to),
-              messageLength: smsData.message.length,
-              timestamp: new Date().toISOString()
-            }
-          },
-          { status: 500 }
-        );
-      }
-    } else if (accountSid && authToken && twilioPhone) {
-      try {
-        // Fallback to Twilio
-        const formattedPhone = formatPhoneNumber(smsData.to);
-        console.log('📱 Sending SMS via Twilio to:', formattedPhone);
-        
-        const twilio = require('twilio');
-        const client = twilio(accountSid, authToken);
-
-        const result = await client.messages.create({
-          body: smsData.message,
-          from: twilioPhone,
-          to: formattedPhone,
-        });
-
-        console.log('✅ SMS sent via Twilio:', result.sid);
-        return NextResponse.json(
-          { 
-            success: true, 
-            message: 'SMS sent successfully via Twilio',
-            data: { 
-              sid: result.sid, 
-              status: result.status,
-              to: formattedPhone,
-            }
-          },
-          { status: 200 }
-        );
-      } catch (twilioError: any) {
-        console.error('❌ Twilio error:', twilioError);
-        return NextResponse.json(
-          { 
-            success: false, 
-            message: 'Twilio error: ' + twilioError.message,
-            error: twilioError.message,
-            code: twilioError.code,
           },
           { status: 500 }
         );
@@ -231,7 +264,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'SMS service not configured. Please add FAST2SMS_API_KEY or Twilio credentials to environment variables.',
+          message: 'SMS service not configured. Please add TWILIO credentials or FAST2SMS_API_KEY to environment variables.',
         },
         { status: 503 }
       );
@@ -259,29 +292,30 @@ export async function GET() {
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
-  const service = fast2smsKey 
-    ? 'Fast2SMS' 
-    : (accountSid && authToken && twilioPhone) 
-      ? 'Twilio' 
-      : 'None';
+  const twilioConfigured = !!(accountSid && authToken && twilioPhone);
+  const fast2smsConfigured = !!fast2smsKey;
+  
+  const primaryService = twilioConfigured ? 'Twilio' : fast2smsConfigured ? 'Fast2SMS' : 'None';
 
   return NextResponse.json({
-    configured: !!(fast2smsKey || (accountSid && authToken && twilioPhone)),
-    service,
-    message: service !== 'None'
-      ? `SMS service (${service}) is configured and ready`
-      : 'SMS service not configured. Add FAST2SMS_API_KEY or Twilio credentials to environment variables.',
+    configured: twilioConfigured || fast2smsConfigured,
+    primaryService,
+    fallbackAvailable: twilioConfigured && fast2smsConfigured,
+    message: primaryService !== 'None'
+      ? `SMS service ready. Primary: ${primaryService}${twilioConfigured && fast2smsConfigured ? ', Fallback: Fast2SMS' : ''}`
+      : 'SMS service not configured. Add TWILIO credentials or FAST2SMS_API_KEY to environment variables.',
     details: {
-      fast2sms: {
-        configured: !!fast2smsKey,
-        keyLength: fast2smsKey ? fast2smsKey.length : 0,
-        keyPrefix: fast2smsKey ? fast2smsKey.substring(0, 5) + '...' : 'Not set'
-      },
       twilio: {
-        configured: !!(accountSid && authToken && twilioPhone)
+        configured: twilioConfigured,
+        priority: 1
+      },
+      fast2sms: {
+        configured: fast2smsConfigured,
+        priority: 2,
+        note: 'Used as fallback if Twilio fails'
       }
     },
-    note: 'Fast2SMS: Use 10-digit Indian mobile numbers (with or without +91)',
+    note: 'Twilio works for international numbers, Fast2SMS for Indian numbers only',
     timestamp: new Date().toISOString()
   });
 }

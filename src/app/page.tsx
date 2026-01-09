@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Utensils, Clock, MapPin } from 'lucide-react';
 import { RESTAURANT_INFO, MENU_ITEMS } from '@/lib/constants';
 import MenuItem from '@/components/MenuItem';
+import Image from 'next/image';
 
 const featureVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -31,11 +32,18 @@ export default function Home() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section with Background Image */}
-      <section className="relative text-white min-h-screen flex items-center bg-cover bg-center" style={{
-        backgroundImage: 'url(https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/f6f439ae-c4ca-4c1f-a1bd-389038165f81)',
-      }}>
+      <section className="relative text-white min-h-screen flex items-center overflow-hidden">
+        {/* Background Image with Dark Overlay */}
+        <Image
+          src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/f6f439ae-c4ca-4c1f-a1bd-389038165f81"
+          alt="RestoCafe Hero"
+          fill
+          className="absolute inset-0 object-cover -z-10"
+          priority
+        />
+        
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-black/55 -z-5"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
           <motion.div

@@ -1,4 +1,4 @@
-import { CartItem, CartItemCustomization, MenuItem, MenuCustomization } from '@/types/menu';
+import { CartItemCustomization, MenuItem, MenuCustomization } from '@/types/menu';
 
 /**
  * Menu Customization Utilities

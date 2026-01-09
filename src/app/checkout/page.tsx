@@ -121,8 +121,6 @@ export default function CheckoutPage() {
       const [emailResult, whatsappResult] = await Promise.allSettled([emailPromise, whatsappPromise]);
 
       const notifications = [];
-      let emailSuccess = false;
-      let whatsappSuccess = false;
       
       // Check email result
       if (emailResult.status === 'fulfilled') {
@@ -130,7 +128,6 @@ export default function CheckoutPage() {
           const emailData = await emailResult.value.json();
           if (emailData.success) {
             console.log('✅ Email sent successfully');
-            emailSuccess = true;
             notifications.push('📧 Email');
           } else {
             console.warn('⚠️ Email failed:', emailData.message);
@@ -148,7 +145,6 @@ export default function CheckoutPage() {
           const whatsappData = await whatsappResult.value.json();
           if (whatsappData.success) {
             console.log('✅ WhatsApp sent successfully');
-            whatsappSuccess = true;
             notifications.push('📱 WhatsApp');
           } else {
             console.warn('⚠️ WhatsApp failed:', whatsappData.message);

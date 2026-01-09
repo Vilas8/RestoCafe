@@ -3,36 +3,86 @@ import { SMSNotification } from '@/types/notification';
 
 /**
  * API Route: Send SMS notification
- * Integrates with SMS service (Twilio, AWS SNS, etc.)
+ * Uses Twilio for SMS delivery
  */
 export async function POST(request: NextRequest) {
   try {
     const smsData: SMSNotification = await request.json();
 
-    // TODO: Integrate with SMS service
-    // Example with Twilio:
-    // const twilio = require('twilio');
-    // const client = twilio(
-    //   process.env.TWILIO_ACCOUNT_SID,
-    //   process.env.TWILIO_AUTH_TOKEN
-    // );
-    // await client.messages.create({
-    //   body: smsData.message,
-    //   from: process.env.TWILIO_PHONE_NUMBER,
-    //   to: smsData.to,
-    // });
+    // Validate SMS data
+    if (!smsData.to || !smsData.message) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields: to, message' },
+        { status: 400 }
+      );
+    }
 
-    console.log('SMS sent:', smsData.to);
+    // Check if Twilio is configured
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
+    if (!accountSid || !authToken || !twilioPhone) {
+      console.warn('⚠️ Twilio not configured. SMS would be sent to:', smsData.to);
+      console.log('SMS message:', smsData.message);
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'SMS service not configured. Please add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to environment variables.',
+          debug: {
+            to: smsData.to,
+            message: smsData.message,
+          }
+        },
+        { status: 503 }
+      );
+    }
+
+    // Use Twilio
+    const twilio = await import('twilio');
+    const client = twilio.default(accountSid, authToken);
+
+    const result = await client.messages.create({
+      body: smsData.message,
+      from: twilioPhone,
+      to: smsData.to,
+    });
+
+    console.log('✅ SMS sent via Twilio:', result.sid);
     return NextResponse.json(
-      { success: true, message: 'SMS sent successfully' },
+      { 
+        success: true, 
+        message: 'SMS sent successfully',
+        data: { sid: result.sid, status: result.status }
+      },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Failed to send SMS:', error);
+  } catch (error: any) {
+    console.error('❌ Failed to send SMS:', error);
     return NextResponse.json(
-      { success: false, message: 'Failed to send SMS' },
+      { 
+        success: false, 
+        message: 'Failed to send SMS',
+        error: error.message || 'Unknown error',
+      },
       { status: 500 }
     );
   }
+}
+
+/**
+ * GET endpoint for testing SMS configuration
+ */
+export async function GET() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+
+  return NextResponse.json({
+    configured: !!(accountSid && authToken && twilioPhone),
+    message: accountSid && authToken && twilioPhone
+      ? 'SMS service (Twilio) is configured and ready'
+      : 'SMS service not configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER to environment variables.',
+  });
 }

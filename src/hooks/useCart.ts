@@ -60,6 +60,9 @@ export const useCart = () => {
   };
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  
+  // Calculate total item count (sum of all quantities)
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return {
     cart,
@@ -68,6 +71,6 @@ export const useCart = () => {
     updateQuantity,
     clearCart,
     total,
-    itemCount: cart.length,
+    itemCount,
   };
 };

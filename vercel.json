@@ -3,23 +3,5 @@
   "version": 2,
   "public": true,
   "buildCommand": "npm run build",
-  "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_RESTAURANT_NAME": {
-      "description": "Restaurant name to display",
-      "default": "RestoCafe"
-    },
-    "NEXT_PUBLIC_RESTAURANT_PHONE": {
-      "description": "Restaurant phone number",
-      "default": "+91-8899776655"
-    },
-    "NEXT_PUBLIC_RESTAURANT_EMAIL": {
-      "description": "Restaurant email address",
-      "default": "hello@restocafe.com"
-    },
-    "NEXT_PUBLIC_RESTAURANT_ADDRESS": {
-      "description": "Restaurant address",
-      "default": "MG Road, Bengaluru, Karnataka"
-    }
-  }
+  "framework": "nextjs"
 }

@@ -24,7 +24,7 @@ export default function Header() {
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
               R
             </div>
-            <span className="text-xl font-bold text-secondary hidden sm:inline">RestoCafe</span>
+            <span className="text-xl font-bold text-secondary hidden sm:inline">Vilas's RestoCafe</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -45,11 +45,12 @@ export default function Header() {
             <Link
               href="/cart"
               className="relative p-2 text-gray-600 hover:text-primary transition-colors"
+              title="Shopping Cart"
             >
               <ShoppingCart size={24} />
               {itemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                  {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
             </Link>
@@ -58,6 +59,7 @@ export default function Header() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden p-2 text-gray-600 hover:text-primary"
+              aria-label="Toggle menu"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

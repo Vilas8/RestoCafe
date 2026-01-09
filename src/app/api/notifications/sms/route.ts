@@ -38,7 +38,7 @@ function cleanPhoneForFast2SMS(phoneNumber: string): string {
 }
 
 /**
- * Send SMS via Fast2SMS using POST method
+ * Send SMS via Fast2SMS using correct header authentication
  */
 async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   const cleanedPhone = cleanPhoneForFast2SMS(phone);
@@ -47,7 +47,8 @@ async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   console.log('   Original phone:', phone);
   console.log('   Cleaned phone:', cleanedPhone);
   console.log('   Message length:', message.length);
-  console.log('   API Key length:', apiKey.length);
+  console.log('   API Key present:', !!apiKey);
+  console.log('   API Key length:', apiKey?.length || 0);
   
   // Validate phone number
   if (cleanedPhone.length !== 10) {
@@ -56,31 +57,34 @@ async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   
   // Validate API key
   if (!apiKey || apiKey.length < 10) {
-    throw new Error('Invalid API key');
+    throw new Error('Invalid API key - too short or missing');
   }
   
-  // Fast2SMS API endpoint - Using POST method
+  // Fast2SMS API endpoint
   const url = 'https://www.fast2sms.com/dev/bulkV2';
   
-  // Prepare form data for POST request
-  const formData = new URLSearchParams();
-  formData.append('authorization', apiKey);
-  formData.append('sender_id', 'FSTSMS'); // Default sender ID
-  formData.append('message', message);
-  formData.append('language', 'english');
-  formData.append('route', 'p'); // promotional route - change to 'q' if you have DLT approval
-  formData.append('numbers', cleanedPhone);
+  // Prepare request body as JSON
+  const requestBody = {
+    route: 'p', // promotional route
+    sender_id: 'FSTSMS',
+    message: message,
+    language: 'english',
+    flash: 0,
+    numbers: cleanedPhone
+  };
 
-  console.log('📱 Fast2SMS - Calling API with POST method...');
+  console.log('📱 Fast2SMS - Request body:', JSON.stringify(requestBody));
+  console.log('📱 Fast2SMS - Calling API with authorization header...');
   
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'authorization': apiKey, // API key in header
+        'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
       },
-      body: formData.toString(),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();

@@ -5,8 +5,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'RestoCafe - Delicious Food Online Ordering & Reservations',
-  description: 'Order your favorite meals online, make reservations, and explore our menu at RestoCafe. Best restaurant in Bengaluru.',
+  title: "Vilas's RestoCafe - Delicious Food Online Ordering & Reservations",
+  description: "Order your favorite meals online, make reservations, and explore our menu at Vilas's RestoCafe. Best restaurant in Bengaluru.",
   keywords: ['restaurant', 'food delivery', 'online ordering', 'reservations', 'cafe', 'bengaluru'],
 };
 

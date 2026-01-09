@@ -38,7 +38,7 @@ function HeroSection() {
       if (heroRef.current) {
         const heroRect = heroRef.current.getBoundingClientRect();
         const scrolled = -heroRect.top;
-        setScrollY(scrolled);
+        setScrollY(Math.max(0, scrolled));
       }
     };
 
@@ -56,7 +56,7 @@ function HeroSection() {
         ref={imageRef}
         className="absolute inset-0 w-full h-full"
         style={{
-          transform: `translateY(${scrollY * 0.5}px) scale(1.05)`,
+          transform: `translateY(${scrollY * 0.5}px) scale(1.08)`,
           transition: 'transform 0.1s ease-out',
         }}
       >
@@ -70,115 +70,90 @@ function HeroSection() {
         />
       </div>
 
-      {/* Dark Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
+      {/* Dynamic Gradient Overlay */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"
+        style={{
+          opacity: Math.min(1, 0.6 + scrollY / 1000),
+        }}
+      ></div>
 
-      {/* 3D Content with Scroll Transform */}
+      {/* 3D Content with Advanced Scroll Transform */}
       <div
         ref={contentRef}
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full text-white text-center"
         style={{
           transform: `translateY(${scrollY * 0.3}px) perspective(1200px) rotateX(${Math.min(
             scrollY * 0.02,
-            5
+            8
           )}deg)`,
-          opacity: Math.max(1 - scrollY / 800, 0.3),
+          opacity: Math.max(1 - scrollY / 1000, 0.2),
         }}
       >
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="space-y-6"
+          transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
+          className="space-y-8"
         >
-          {/* Main Title with 3D Effect */}
+          {/* Main Title with Gradient Text Effect */}
           <motion.h1
-            className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight drop-shadow-2xl"
+            className="text-6xl sm:text-7xl lg:text-8xl font-black leading-tight drop-shadow-2xl"
             style={{
-              textShadow: '0 10px 30px rgba(0, 0, 0, 0.8)',
+              textShadow: '0 15px 35px rgba(0, 0, 0, 0.9), 0 0 80px rgba(255, 152, 0, 0.3)',
               letterSpacing: '-0.02em',
+              fontVariant: 'small-caps',
             }}
           >
-            <motion.span
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%'],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-              className="inline-block"
-            >
-              Vilas's RestoCafe
-            </motion.span>
+            <span className="block">Vilas's</span>
+            <span className="block bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500 bg-clip-text text-transparent">
+              RestoCafe
+            </span>
           </motion.h1>
 
-          {/* Subtitle with Fade Animation */}
+          {/* Subtitle with Fade & Slide Animation */}
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="text-xl sm:text-2xl lg:text-3xl opacity-95 drop-shadow-lg font-light tracking-wide"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-2xl sm:text-3xl lg:text-4xl opacity-95 drop-shadow-lg font-light tracking-widest"
           >
             Delicious Food For Every Mood
           </motion.p>
 
-          {/* CTA Buttons with Hover Effects */}
+          {/* CTA Buttons with Advanced Hover Effects */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+            transition={{ duration: 0.9, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center pt-8 items-center"
           >
             <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.12, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             >
               <Link
                 href="/menu"
-                className="inline-block px-8 sm:px-10 py-4 bg-white text-orange-600 font-bold rounded-full hover:bg-orange-50 transition-all duration-300 shadow-xl hover:shadow-2xl text-lg"
+                className="inline-block px-10 sm:px-12 py-5 bg-white text-orange-600 font-black rounded-full hover:bg-orange-50 transition-all duration-300 shadow-2xl hover:shadow-3xl text-lg tracking-wide uppercase"
               >
-                VIEW OUR MENU
+                View Our Menu
               </Link>
             </motion.div>
 
             <motion.div
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.12, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300 }}
             >
               <Link
                 href="/reservations"
-                className="inline-block px-8 sm:px-10 py-4 bg-orange-600 text-white font-bold rounded-full hover:bg-orange-700 transition-all duration-300 shadow-xl hover:shadow-2xl text-lg"
+                className="inline-block px-10 sm:px-12 py-5 bg-orange-600 text-white font-black rounded-full hover:bg-orange-700 transition-all duration-300 shadow-2xl hover:shadow-3xl text-lg tracking-wide uppercase"
               >
-                BOOK A TABLE
+                Book a Table
               </Link>
             </motion.div>
           </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 hidden sm:block"
-        >
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-white/60 text-sm">Scroll to explore</span>
-            <svg
-              className="w-6 h-6 text-white/60"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </div>
         </motion.div>
       </div>
     </section>
@@ -193,8 +168,8 @@ export default function Home() {
       {/* Enhanced Hero Section */}
       <HeroSection />
 
-      {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      {/* Features Section with Parallax */}
+      <section className="py-16 bg-gray-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -233,7 +208,8 @@ export default function Home() {
                 key={i}
                 custom={i}
                 variants={featureVariants}
-                className="card-shadow p-8 rounded-lg text-center bg-white"
+                whileHover={{ y: -10 }}
+                className="card-shadow p-8 rounded-lg text-center bg-white hover:shadow-xl transition-shadow"
               >
                 <feature.icon className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="text-xl font-bold mb-3 text-secondary">{feature.title}</h3>

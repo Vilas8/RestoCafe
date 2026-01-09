@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { RESTAURANT_INFO } from '@/lib/constants';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export default function ContactPage() {
       });
       localStorage.setItem('restocafe-messages', JSON.stringify(messages));
 
-      toast.success('Message sent successfully! We will get back to you soon.');
+      toast.success('\ud83c\udf89 Message sent successfully! We will get back to you soon.', { duration: 4 });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       toast.error('Failed to send message. Please try again.');
@@ -50,26 +51,30 @@ export default function ContactPage() {
     {
       icon: Phone,
       title: 'Phone',
-      value: '+91-8899776655',
+      value: RESTAURANT_INFO.phone,
       description: 'Call us for orders and reservations',
+      link: `tel:${RESTAURANT_INFO.phone}`,
     },
     {
       icon: Mail,
       title: 'Email',
-      value: 'hello@restocafe.com',
+      value: RESTAURANT_INFO.email,
       description: 'Send us your queries anytime',
+      link: `mailto:${RESTAURANT_INFO.email}`,
     },
     {
       icon: MapPin,
       title: 'Location',
-      value: 'MG Road, Bengaluru',
+      value: RESTAURANT_INFO.address,
       description: 'Visit us for dine-in experience',
+      link: '#',
     },
     {
       icon: Clock,
       title: 'Hours',
-      value: '10:00 AM - 11:00 PM',
+      value: RESTAURANT_INFO.hours,
       description: 'Open daily for your convenience',
+      link: '#',
     },
   ];
 
@@ -82,26 +87,32 @@ export default function ContactPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl font-bold text-secondary mb-4">Contact Us</h1>
+          <h1 className="text-5xl font-bold text-secondary mb-4">\ud83d\udcc4 Contact Us</h1>
           <p className="text-xl text-gray-600">We'd love to hear from you. Get in touch with us anytime!</p>
         </motion.div>
 
         {/* Contact Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {contactInfo.map((info, i) => (
-            <motion.div
+            <motion.a
               key={i}
+              href={info.link}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-lg card-shadow p-6 text-center"
+              whileHover={{ y: -10 }}
+              className="bg-white rounded-lg card-shadow p-6 text-center hover:shadow-lg transition-all group"
             >
-              <info.icon className="w-12 h-12 text-primary mx-auto mb-4" />
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <info.icon className="w-12 h-12 text-primary mx-auto mb-4 group-hover:text-accent transition-colors" />
+              </motion.div>
               <h3 className="text-lg font-bold text-secondary mb-2">{info.title}</h3>
-              <p className="font-semibold text-gray-700 mb-2">{info.value}</p>
+              <p className="font-semibold text-gray-700 mb-2 break-words">{info.value}</p>
               <p className="text-gray-600 text-sm">{info.description}</p>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
 
@@ -112,9 +123,12 @@ export default function ContactPage() {
             onSubmit={handleSubmit}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-lg card-shadow p-8"
+            className="bg-white rounded-lg card-shadow p-8 hover:shadow-xl transition-all"
           >
-            <h2 className="text-2xl font-bold text-secondary mb-6">Send us a Message</h2>
+            <h2 className="text-2xl font-bold text-secondary mb-6 flex items-center gap-2">
+              <Send size={28} className="text-primary" />
+              Send us a Message
+            </h2>
 
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-2 text-gray-700">
@@ -125,7 +139,7 @@ export default function ContactPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="John Doe"
                 required
               />
@@ -140,7 +154,7 @@ export default function ContactPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="john@example.com"
                 required
               />
@@ -155,7 +169,7 @@ export default function ContactPage() {
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 placeholder="How can we help?"
                 required
               />
@@ -169,20 +183,22 @@ export default function ContactPage() {
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200 transition-all"
                 rows={5}
                 placeholder="Your message here..."
                 required
               />
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed font-bold bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg transition-all"
             >
-              {isSubmitting ? 'Sending...' : 'Send Message'}
-            </button>
+              {isSubmitting ? '\u23f3 Sending...' : '\u2764\ufe0f Send Message'}
+            </motion.button>
           </motion.form>
 
           {/* Map & Info */}
@@ -192,7 +208,7 @@ export default function ContactPage() {
             className="space-y-6"
           >
             {/* Google Maps Embed */}
-            <div className="rounded-lg overflow-hidden card-shadow h-96">
+            <div className="rounded-lg overflow-hidden card-shadow h-96 hover:shadow-xl transition-all">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.886343658854!2d77.59501!3d12.97192!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15e4de73c4f5%3A0x5e5e5e5e5e5e5e5e!2sMG%20Road%2C%20Bengaluru!5e0!3m2!1sen!2sin!4v1234567890"
                 width="100%"
@@ -205,22 +221,31 @@ export default function ContactPage() {
             </div>
 
             {/* Quick Contact */}
-            <div className="bg-gradient-to-br from-primary to-accent text-white rounded-lg p-6 card-shadow">
-              <h3 className="text-xl font-bold mb-4">Quick Contact</h3>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-gradient-to-br from-primary to-accent text-white rounded-lg p-6 card-shadow hover:shadow-xl transition-all"
+            >
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                \ud83d\udcc4 Quick Contact
+              </h3>
               <p className="mb-4 opacity-90">
                 Can't wait? Call us directly or visit us in person. Our friendly team is always ready to help!
               </p>
               <div className="space-y-2">
-                <p className="flex items-center gap-2">
+                <p className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Phone size={18} />
-                  +91-8899776655
+                  <a href={`tel:${RESTAURANT_INFO.phone}`} className="font-semibold hover:underline">
+                    {RESTAURANT_INFO.phone}
+                  </a>
                 </p>
-                <p className="flex items-center gap-2">
+                <p className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Mail size={18} />
-                  hello@restocafe.com
+                  <a href={`mailto:${RESTAURANT_INFO.email}`} className="font-semibold hover:underline">
+                    {RESTAURANT_INFO.email}
+                  </a>
                 </p>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

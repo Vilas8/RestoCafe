@@ -38,57 +38,71 @@ function cleanPhoneForFast2SMS(phoneNumber: string): string {
 }
 
 /**
- * Send SMS via Fast2SMS
+ * Send SMS via Fast2SMS using POST method
  */
 async function sendViaFast2SMS(phone: string, message: string, apiKey: string) {
   const cleanedPhone = cleanPhoneForFast2SMS(phone);
   
-  console.log('📱 Fast2SMS - Original phone:', phone);
-  console.log('📱 Fast2SMS - Cleaned phone:', cleanedPhone);
-  console.log('📱 Fast2SMS - Message length:', message.length);
+  console.log('📱 Fast2SMS Debug Info:');
+  console.log('   Original phone:', phone);
+  console.log('   Cleaned phone:', cleanedPhone);
+  console.log('   Message length:', message.length);
+  console.log('   API Key length:', apiKey.length);
   
   // Validate phone number
   if (cleanedPhone.length !== 10) {
-    throw new Error(`Invalid phone number format. Expected 10 digits, got ${cleanedPhone.length}`);
+    throw new Error(`Invalid phone number format. Expected 10 digits, got ${cleanedPhone.length}. Cleaned: ${cleanedPhone}`);
   }
   
-  // Fast2SMS API endpoint
+  // Validate API key
+  if (!apiKey || apiKey.length < 10) {
+    throw new Error('Invalid API key');
+  }
+  
+  // Fast2SMS API endpoint - Using POST method
   const url = 'https://www.fast2sms.com/dev/bulkV2';
   
-  // Build query parameters
-  const params = new URLSearchParams({
-    authorization: apiKey,
-    message: message,
-    language: 'english',
-    route: 'q', // Quick route for transactional messages
-    numbers: cleanedPhone,
-  });
+  // Prepare form data for POST request
+  const formData = new URLSearchParams();
+  formData.append('authorization', apiKey);
+  formData.append('sender_id', 'FSTSMS'); // Default sender ID
+  formData.append('message', message);
+  formData.append('language', 'english');
+  formData.append('route', 'p'); // promotional route - change to 'q' if you have DLT approval
+  formData.append('numbers', cleanedPhone);
 
-  console.log('📱 Fast2SMS - Calling API...');
+  console.log('📱 Fast2SMS - Calling API with POST method...');
   
-  const response = await fetch(`${url}?${params.toString()}`, {
-    method: 'GET',
-    headers: {
-      'Cache-Control': 'no-cache',
-    },
-  });
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cache-Control': 'no-cache',
+      },
+      body: formData.toString(),
+    });
 
-  const data = await response.json();
-  
-  console.log('📱 Fast2SMS - Response status:', response.status);
-  console.log('📱 Fast2SMS - Response data:', JSON.stringify(data));
-  
-  // Check for success
-  if (!response.ok) {
-    throw new Error(`Fast2SMS API error: ${data.message || response.statusText}`);
+    const data = await response.json();
+    
+    console.log('📱 Fast2SMS - Response status:', response.status);
+    console.log('📱 Fast2SMS - Response data:', JSON.stringify(data, null, 2));
+    
+    // Check for success
+    if (!response.ok) {
+      throw new Error(`Fast2SMS API error (${response.status}): ${data.message || response.statusText}`);
+    }
+    
+    // Fast2SMS returns return: true on success
+    if (data.return === false) {
+      throw new Error(data.message || 'Fast2SMS returned failure status');
+    }
+
+    return data;
+  } catch (fetchError: any) {
+    console.error('📱 Fast2SMS - Fetch error:', fetchError);
+    throw fetchError;
   }
-  
-  // Fast2SMS returns return: true on success
-  if (!data.return) {
-    throw new Error(data.message || 'Fast2SMS returned failure status');
-  }
-
-  return data;
 }
 
 /**
@@ -99,8 +113,14 @@ export async function POST(request: NextRequest) {
   try {
     const smsData: SMSNotification = await request.json();
 
+    console.log('📨 SMS Request received:', {
+      to: smsData.to,
+      messageLength: smsData.message?.length
+    });
+
     // Validate SMS data
     if (!smsData.to || !smsData.message) {
+      console.error('❌ Missing required fields');
       return NextResponse.json(
         { success: false, message: 'Missing required fields: to, message' },
         { status: 400 }
@@ -113,20 +133,21 @@ export async function POST(request: NextRequest) {
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
-    console.log('🔧 SMS Service Check:');
+    console.log('🔧 SMS Service Configuration:');
     console.log('   Fast2SMS configured:', !!fast2smsKey);
+    console.log('   Fast2SMS key length:', fast2smsKey?.length || 0);
     console.log('   Twilio configured:', !!(accountSid && authToken && twilioPhone));
 
     // Prioritize Fast2SMS for Indian numbers
     if (fast2smsKey) {
       try {
         console.log('📱 Attempting to send SMS via Fast2SMS...');
-        console.log('   To:', smsData.to);
-        console.log('   Message preview:', smsData.message.substring(0, 50) + '...');
         
         const result = await sendViaFast2SMS(smsData.to, smsData.message, fast2smsKey);
 
         console.log('✅ SMS sent via Fast2SMS successfully');
+        console.log('   Result:', JSON.stringify(result));
+        
         return NextResponse.json(
           { 
             success: true, 
@@ -134,14 +155,16 @@ export async function POST(request: NextRequest) {
             data: result,
             debug: {
               to: smsData.to,
-              cleaned: cleanPhoneForFast2SMS(smsData.to)
+              cleaned: cleanPhoneForFast2SMS(smsData.to),
+              timestamp: new Date().toISOString()
             }
           },
           { status: 200 }
         );
       } catch (fast2smsError: any) {
         console.error('❌ Fast2SMS error:', fast2smsError);
-        console.error('   Error details:', fast2smsError.message);
+        console.error('   Error message:', fast2smsError.message);
+        console.error('   Error stack:', fast2smsError.stack);
         
         return NextResponse.json(
           { 
@@ -151,7 +174,8 @@ export async function POST(request: NextRequest) {
             debug: {
               to: smsData.to,
               cleaned: cleanPhoneForFast2SMS(smsData.to),
-              messageLength: smsData.message.length
+              messageLength: smsData.message.length,
+              timestamp: new Date().toISOString()
             }
           },
           { status: 500 }
@@ -243,8 +267,17 @@ export async function GET() {
     message: service !== 'None'
       ? `SMS service (${service}) is configured and ready`
       : 'SMS service not configured. Add FAST2SMS_API_KEY or Twilio credentials to environment variables.',
+    details: {
+      fast2sms: {
+        configured: !!fast2smsKey,
+        keyLength: fast2smsKey ? fast2smsKey.length : 0,
+        keyPrefix: fast2smsKey ? fast2smsKey.substring(0, 5) + '...' : 'Not set'
+      },
+      twilio: {
+        configured: !!(accountSid && authToken && twilioPhone)
+      }
+    },
     note: 'Fast2SMS: Use 10-digit Indian mobile numbers (with or without +91)',
-    apiKeyPresent: !!fast2smsKey,
-    apiKeyLength: fast2smsKey ? fast2smsKey.length : 0
+    timestamp: new Date().toISOString()
   });
 }

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Calendar, Clock, Users, Mail, Phone, Sparkles, Check, X } from 'lucide-react';
+import { Calendar, Clock, Users, Mail, Phone, Sparkles, Check } from 'lucide-react';
 import { RESTAURANT_INFO } from '@/lib/constants';
 
 const reservationSchema = z.object({

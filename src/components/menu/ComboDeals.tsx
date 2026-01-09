@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { ComboDeal } from '@/types/menu';
 import { ComboDealService } from '@/lib/menu/combos';
-import { ShoppingCart, Clock } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 
 interface ComboDealsProps {

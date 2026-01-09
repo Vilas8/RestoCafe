@@ -69,11 +69,12 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: order.email,
-          subject: `Order Confirmation #${order.id}`,
+          subject: `Order Confirmation #${order.id} - Vilas's RestoCafe`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
                 <h1 style="margin: 0; font-size: 28px;">🎉 Order Confirmed!</h1>
+                <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">Vilas's RestoCafe</p>
               </div>
               <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
                 <h2 style="color: #333; margin-bottom: 20px;">Thank you for your order, ${order.fullName}!</h2>
@@ -95,12 +96,12 @@ export default function CheckoutPage() {
                   `).join('')}
                 </ul>
                 <p style="text-align: center; margin-top: 30px; color: #666;">
-                  Thank you for choosing RestoCafe! 🍕🍔🍰
+                  Thank you for choosing Vilas's RestoCafe! 🍕🍔🍰
                 </p>
               </div>
             </div>
           `,
-          text: `Order Confirmation #${order.id}\n\nThank you ${order.fullName}! Your order has been confirmed.\n\nTotal: ₹${order.total.toFixed(2)}\nEstimated Delivery: 30 minutes\n\nDelivery to: ${order.address}, ${order.city}`,
+          text: `Order Confirmation #${order.id} - Vilas's RestoCafe\n\nThank you ${order.fullName}! Your order has been confirmed.\n\nTotal: ₹${order.total.toFixed(2)}\nEstimated Delivery: 30 minutes\n\nDelivery to: ${order.address}, ${order.city}`,
         }),
       });
 
@@ -110,7 +111,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: `+91 ${order.phone}`,
-          message: `RestoCafe: Order ${order.id} confirmed! Total: ₹${order.total.toFixed(2)}. Estimated delivery: 30 min. Track: resto-cafe-neon.vercel.app/order-success?orderId=${order.id}`,
+          message: `Vilas's RestoCafe: Order ${order.id} confirmed! Total: ₹${order.total.toFixed(2)}. Estimated delivery: 30 min. Track: resto-cafe-neon.vercel.app/order-success?orderId=${order.id}`,
         }),
       });
 

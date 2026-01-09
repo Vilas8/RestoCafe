@@ -34,7 +34,7 @@ class SMSService {
     orderId: string,
     total: number
   ): Promise<boolean> {
-    const message = `RestoCafe: Your order #${orderId} has been confirmed! Total: ₹${total}. Track your order at restocafe.com/orders/${orderId}`;
+    const message = `Vilas's RestoCafe: Your order #${orderId} has been confirmed! Total: ₹${total}. Track your order at resto-cafe-neon.vercel.app/orders/${orderId}`;
 
     return await this.sendSMS(phoneNumber, message);
   }
@@ -55,7 +55,7 @@ class SMSService {
       delivered: 'Your order has been delivered',
     };
 
-    const message = `RestoCafe: Order #${orderId} - ${statusMessages[status as keyof typeof statusMessages]}. Track at restocafe.com/orders/${orderId}`;
+    const message = `Vilas's RestoCafe: Order #${orderId} - ${statusMessages[status as keyof typeof statusMessages]}. Track at resto-cafe-neon.vercel.app/orders/${orderId}`;
 
     return await this.sendSMS(phoneNumber, message);
   }
@@ -67,7 +67,7 @@ class SMSService {
     phoneNumber: string,
     message: string
   ): Promise<boolean> {
-    const formattedMessage = `RestoCafe: ${message}. Reply STOP to unsubscribe.`;
+    const formattedMessage = `Vilas's RestoCafe: ${message}. Reply STOP to unsubscribe.`;
     return await this.sendSMS(phoneNumber, formattedMessage);
   }
 

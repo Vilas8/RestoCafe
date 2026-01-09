@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         const resend = new Resend(resendKey);
 
         const result = await resend.emails.send({
-          from: 'RestoCafe <onboarding@resend.dev>',
+          from: 'Vilas\'s RestoCafe <onboarding@resend.dev>',
           to: emailData.to,
           subject: emailData.subject,
           html: emailData.html || emailData.text || '',
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
         await sgMail.send({
           to: emailData.to,
-          from: 'noreply@yourdomain.com', // Must be verified in SendGrid
+          from: 'noreply@vilasrestocafe.com', // Must be verified in SendGrid
           subject: emailData.subject,
           html: emailData.html || emailData.text || '',
           text: emailData.text,

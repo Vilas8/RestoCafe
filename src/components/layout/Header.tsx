@@ -50,9 +50,9 @@ export default function Header() {
               <div className="p-2 text-gray-600 hover:text-primary transition-colors duration-200 relative">
                 <ShoppingCart size={28} strokeWidth={1.5} />
                 
-                {/* Cart Count Badge */}
+                {/* Cart Count Badge - Orange Color */}
                 {itemCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6 text-sm font-bold text-white bg-primary rounded-full transform translate-x-1 -translate-y-1 shadow-lg animate-pulse">
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6 text-sm font-bold text-white bg-orange-500 rounded-full transform translate-x-1 -translate-y-1 shadow-lg animate-pulse">
                     {itemCount > 99 ? '99+' : itemCount}
                   </span>
                 )}

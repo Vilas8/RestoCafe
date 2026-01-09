@@ -30,14 +30,14 @@ export default function Home() {
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary to-accent text-white min-h-screen flex items-center">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-3xl animation-pulse"></div>
-        </div>
+      {/* Hero Section with Background Image */}
+      <section className="relative text-white min-h-screen flex items-center bg-cover bg-center" style={{
+        backgroundImage: 'url(https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/f6f439ae-c4ca-4c1f-a1bd-389038165f81)',
+      }}>
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/50"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

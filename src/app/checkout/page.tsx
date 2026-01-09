@@ -286,7 +286,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <button type="submit" disabled={isProcessing} className="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:text-primary">
+            <button type="submit" disabled={isProcessing} className="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:text-black">
               {isProcessing ? 'Processing Order & Sending Notifications...' : 'Place Order'}
             </button>
           </motion.form>

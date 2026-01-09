@@ -71,7 +71,7 @@ export const MENU_ITEMS = [
     description: 'Marinated chicken grilled in traditional tandoor oven',
     price: 399,
     category: 'mains' as const,
-    image: 'https://images.unsplash.com/photo-1599599810694-b3a7cb56cc93?w=500&h=500&fit=crop',
+    image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=500&h=500&fit=crop',
     vegetarian: false,
     spicy: 2,
     popular: true,
@@ -82,7 +82,7 @@ export const MENU_ITEMS = [
     description: 'Crispy bread with garlic butter and fresh herbs',
     price: 149,
     category: 'appetizers' as const,
-    image: 'https://images.unsplash.com/photo-1599599810872-82b6ad4b2a8a?w=500&h=500&fit=crop',
+    image: 'https://images.unsplash.com/photo-1589985643862-1cfc1d82f78d?w=500&h=500&fit=crop',
     vegetarian: true,
     spicy: 0,
     popular: false,
@@ -101,7 +101,7 @@ export const MENU_ITEMS = [
 ];
 
 export const RESTAURANT_INFO = {
-  name: process.env.NEXT_PUBLIC_RESTAURANT_NAME || 'RestoCafe',
+  name: process.env.NEXT_PUBLIC_RESTAURANT_NAME || "Vilas's RestoCafe",
   phone: process.env.NEXT_PUBLIC_RESTAURANT_PHONE || '+91-8899776655',
   email: process.env.NEXT_PUBLIC_RESTAURANT_EMAIL || 'hello@restocafe.com',
   address: process.env.NEXT_PUBLIC_RESTAURANT_ADDRESS || 'MG Road, Bengaluru, Karnataka 560001',

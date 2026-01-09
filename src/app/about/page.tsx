@@ -73,7 +73,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            src="https://images.unsplash.com/photo-1504674900967-a8fb7a91c537?w=600&h=400&fit=crop"
+            src="https://i.ibb.co/sdTrKdSm/restaurant-image.jpg"
             alt={`${RESTAURANT_INFO.name} Restaurant`}
             className="rounded-lg card-shadow"
           />

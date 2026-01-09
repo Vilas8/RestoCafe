@@ -103,7 +103,6 @@ class PushNotificationService {
       icon: notification.icon || '/icon-192.png',
       badge: notification.badge || '/badge-72.png',
       data: notification.data,
-      actions: notification.actions,
     });
   }
 

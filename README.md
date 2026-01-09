@@ -10,7 +10,7 @@
 
 **A production-ready restaurant website with modern UI/UX, built with cutting-edge web technologies**
 
-[Live Demo](#-live-demo) • [Features](#-features) • [Getting Started](#-getting-started) • [Tech Stack](#-tech-stack) • [Contributing](#-contributing)
+[Live Demo](https://resto-cafe-neon.vercel.app/) • [Features](#-features) • [Getting Started](#-getting-started) • [Tech Stack](#-tech-stack) • [Contributing](#-contributing)
 
 </div>
 

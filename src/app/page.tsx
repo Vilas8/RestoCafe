@@ -49,23 +49,29 @@ function HeroSection() {
           transition={{ duration: 0.9, delay: 0.2, ease: 'easeOut' }}
           className="space-y-8"
         >
-          {/* Main Title - Already in Banner */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="space-y-4"
+          {/* Main Title */}
+          <motion.h1
+            className="text-6xl sm:text-7xl lg:text-8xl font-black leading-tight drop-shadow-2xl"
+            style={{
+              textShadow: '0 15px 35px rgba(0, 0, 0, 0.9)',
+              letterSpacing: '-0.02em',
+            }}
           >
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="text-2xl sm:text-3xl lg:text-4xl opacity-95 drop-shadow-lg font-light tracking-widest text-white"
-            >
-              Delicious Food For Every Mood
-            </motion.p>
-          </motion.div>
+            <span className="block text-white">Vilas's</span>
+            <span className="block bg-gradient-to-r from-orange-300 via-orange-400 to-orange-500 bg-clip-text text-transparent">
+              RestoCafe
+            </span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="text-2xl sm:text-3xl lg:text-4xl opacity-95 drop-shadow-lg font-light tracking-widest text-white"
+          >
+            Delicious Food For Every Mood
+          </motion.p>
 
           {/* CTA Buttons */}
           <motion.div

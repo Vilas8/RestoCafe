@@ -40,7 +40,7 @@ class EmailService {
     const emailData: EmailNotification = {
       to: email,
       subject: `Order Update #${orderId}`,
-      html: this.getOrderStatusTemplate(orderId, status, statusMessages[status as keyof typeof statusMessages]),
+      html: this.getOrderStatusTemplate(orderId, statusMessages[status as keyof typeof statusMessages]),
       text: `Order #${orderId}: ${statusMessages[status as keyof typeof statusMessages]}`,
     };
 
@@ -159,7 +159,7 @@ class EmailService {
   /**
    * Order status update template
    */
-  private getOrderStatusTemplate(orderId: string, status: string, message: string): string {
+  private getOrderStatusTemplate(orderId: string, message: string): string {
     return `
       <!DOCTYPE html>
       <html>

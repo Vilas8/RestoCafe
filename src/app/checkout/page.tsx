@@ -105,40 +105,59 @@ export default function CheckoutPage() {
         }),
       });
 
-      // Send SMS Notification
-      const smsPromise = fetch('/api/notifications/sms', {
+      // Send WhatsApp Notification (Primary)
+      const whatsappPromise = fetch('/api/notifications/whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: `+91 ${order.phone}`,
-          message: `Vilas's RestoCafe: Order ${order.id} confirmed! Total: ₹${order.total.toFixed(2)}. Estimated delivery: 30 min. Track: resto-cafe-neon.vercel.app/order-success?orderId=${order.id}`,
+          to: `+91${order.phone}`,
+          message: `🎉 *Vilas's RestoCafe*\n\nOrder Confirmed!\nOrder ID: ${order.id}\nTotal: ₹${order.total.toFixed(2)}\n⏱️ Estimated delivery: 30 min\n\nTrack: resto-cafe-neon.vercel.app/order-success?orderId=${order.id}`,
         }),
       });
 
-      // Wait for both notifications
-      const [emailResult, smsResult] = await Promise.allSettled([emailPromise, smsPromise]);
+      // Wait for notifications
+      const [emailResult, whatsappResult] = await Promise.allSettled([emailPromise, whatsappPromise]);
 
-      // Check results
+      let successCount = 0;
+      let failCount = 0;
+
+      // Check email result
       if (emailResult.status === 'fulfilled') {
         const emailData = await emailResult.value.json();
         if (emailData.success) {
-          console.log('✅ Email sent successfully');
+          console.log('✅ Email sent');
+          successCount++;
         } else {
           console.warn('⚠️ Email failed:', emailData.message);
+          failCount++;
         }
       }
 
-      if (smsResult.status === 'fulfilled') {
-        const smsData = await smsResult.value.json();
-        if (smsData.success) {
-          console.log('✅ SMS sent successfully');
+      // Check WhatsApp result
+      if (whatsappResult.status === 'fulfilled') {
+        const whatsappData = await whatsappResult.value.json();
+        if (whatsappData.success) {
+          console.log('✅ WhatsApp sent');
+          successCount++;
         } else {
-          console.warn('⚠️ SMS failed:', smsData.message);
+          console.warn('⚠️ WhatsApp failed:', whatsappData.message);
+          failCount++;
         }
+      }
+
+      // Show appropriate toast
+      if (successCount > 0) {
+        const channels = [];
+        if (emailResult.status === 'fulfilled' && (await emailResult.value.json()).success) channels.push('📧 Email');
+        if (whatsappResult.status === 'fulfilled' && (await whatsappResult.value.json()).success) channels.push('📱 WhatsApp');
+        toast.success(`Sent: ${channels.join(' & ')}!`);
+      }
+
+      if (failCount === 2) {
+        toast.error('⚠️ Notifications failed, but order was placed successfully');
       }
     } catch (error) {
       console.error('Notification error:', error);
-      // Don't block order completion if notifications fail
     }
   };
 
@@ -163,12 +182,8 @@ export default function CheckoutPage() {
       orders.push(order);
       localStorage.setItem('restocafe-orders', JSON.stringify(orders));
 
-      // Send notifications (don't wait for them)
-      sendOrderNotifications(order).then(() => {
-        toast.success('📧 Confirmation email and SMS sent!');
-      }).catch(() => {
-        toast.error('⚠️ Order placed but notifications failed');
-      });
+      // Send notifications
+      sendOrderNotifications(order);
 
       toast.success('Order placed successfully!');
       clearCart();
@@ -194,7 +209,6 @@ export default function CheckoutPage() {
         </motion.h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
           <motion.form
             onSubmit={handleSubmit(onSubmit)}
             initial={{ opacity: 0, x: -20 }}
@@ -206,48 +220,19 @@ export default function CheckoutPage() {
               <h2 className="text-2xl font-bold text-secondary mb-4">Personal Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Full Name *
-                  </label>
-                  <input
-                    {...register('fullName')}
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                    placeholder="John Doe"
-                  />
-                  {errors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
-                  )}
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Full Name *</label>
+                  <input {...register('fullName')} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" placeholder="John Doe" />
+                  {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
                 </div>
-
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Email *
-                  </label>
-                  <input
-                    {...register('email')}
-                    type="email"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                    placeholder="john@example.com"
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                  )}
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Email *</label>
+                  <input {...register('email')} type="email" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" placeholder="john@example.com" />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                 </div>
-
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Phone * (10 digits)
-                  </label>
-                  <input
-                    {...register('phone')}
-                    type="tel"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                    placeholder="9876543210"
-                  />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-                  )}
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Phone * (10 digits)</label>
+                  <input {...register('phone')} type="tel" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" placeholder="9876543210" />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
                 </div>
               </div>
             </div>
@@ -257,49 +242,20 @@ export default function CheckoutPage() {
               <h2 className="text-2xl font-bold text-secondary mb-4">Delivery Address</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Address *
-                  </label>
-                  <textarea
-                    {...register('address')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                    rows={3}
-                    placeholder="No.123, KR defence colony,1st phase, cheemasandra, Bengaluru"
-                  />
-                  {errors.address && (
-                    <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
-                  )}
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">Address *</label>
+                  <textarea {...register('address')} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" rows={3} placeholder="No.123, KR defence colony,1st phase, cheemasandra, Bengaluru" />
+                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>}
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-700">
-                      City *
-                    </label>
-                    <input
-                      {...register('city')}
-                      type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                      placeholder="Bengaluru"
-                    />
-                    {errors.city && (
-                      <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
-                    )}
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">City *</label>
+                    <input {...register('city')} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" placeholder="Bengaluru" />
+                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
                   </div>
-
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-700">
-                      Postal Code *
-                    </label>
-                    <input
-                      {...register('postalCode')}
-                      type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
-                      placeholder="560001"
-                    />
-                    {errors.postalCode && (
-                      <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
-                    )}
+                    <label className="block text-sm font-semibold mb-2 text-gray-700">Postal Code *</label>
+                    <input {...register('postalCode')} type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200" placeholder="560001" />
+                    {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>}
                   </div>
                 </div>
               </div>
@@ -309,78 +265,39 @@ export default function CheckoutPage() {
             <div className="bg-white p-6 rounded-lg card-shadow">
               <h2 className="text-2xl font-bold text-secondary mb-4">Payment Method</h2>
               <div className="space-y-3">
-                {[
-                  { value: 'card', label: 'Credit/Debit Card' },
-                  { value: 'upi', label: 'UPI' },
-                  { value: 'cash', label: 'Cash on Delivery' },
-                ].map((method) => (
+                {[{ value: 'card', label: 'Credit/Debit Card' }, { value: 'upi', label: 'UPI' }, { value: 'cash', label: 'Cash on Delivery' }].map((method) => (
                   <label key={method.value} className="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-orange-50">
-                    <input
-                      {...register('paymentMethod')}
-                      type="radio"
-                      value={method.value}
-                      defaultChecked={method.value === 'card'}
-                      className="w-4 h-4 text-primary"
-                    />
+                    <input {...register('paymentMethod')} type="radio" value={method.value} defaultChecked={method.value === 'card'} className="w-4 h-4 text-primary" />
                     <span className="ml-3 font-semibold text-gray-700">{method.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:text-primary"
-            >
+            <button type="submit" disabled={isProcessing} className="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed hover:text-primary">
               {isProcessing ? 'Processing Order & Sending Notifications...' : 'Place Order'}
             </button>
           </motion.form>
 
           {/* Order Summary */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-lg card-shadow p-6 h-fit sticky top-24"
-          >
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-lg card-shadow p-6 h-fit sticky top-24">
             <h2 className="text-2xl font-bold text-secondary mb-6">Order Summary</h2>
-
             <div className="space-y-3 mb-6 max-h-64 overflow-y-auto">
               {cart.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-gray-600">
-                    {item.name} x{item.quantity}
-                  </span>
-                  <span className="font-semibold">
-                    {formatPrice(item.price * item.quantity)}
-                  </span>
+                  <span className="text-gray-600">{item.name} x{item.quantity}</span>
+                  <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
-
             <hr className="mb-4" />
-
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">{formatPrice(total)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Taxes (5%)</span>
-                <span className="font-semibold">{formatPrice(total * 0.05)}</span>
-              </div>
-              <div className="flex justify-between text-lg mt-4 pt-4 border-t-2">
-                <span className="font-bold text-secondary">Total Amount</span>
-                <span className="font-bold text-primary text-2xl">
-                  {formatPrice(total * 1.05)}
-                </span>
-              </div>
+              <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span className="font-semibold">{formatPrice(total)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Taxes (5%)</span><span className="font-semibold">{formatPrice(total * 0.05)}</span></div>
+              <div className="flex justify-between text-lg mt-4 pt-4 border-t-2"><span className="font-bold text-secondary">Total Amount</span><span className="font-bold text-primary text-2xl">{formatPrice(total * 1.05)}</span></div>
             </div>
-            
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-800">
-                📧 Email and 📱 SMS confirmations will be sent automatically
-              </p>
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-800">✅ 📧 Email & 📱 WhatsApp confirmations will be sent</p>
             </div>
           </motion.div>
         </div>

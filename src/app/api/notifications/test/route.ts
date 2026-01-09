@@ -1,98 +1,118 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * Test endpoint to verify notification services are working
- * GET /api/notifications/test
- */
 export async function GET() {
-  const services = {
-    email: {
-      resend: !!process.env.RESEND_API_KEY,
-      sendgrid: !!process.env.SENDGRID_API_KEY,
-    },
-    sms: {
-      twilio: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER),
-    },
-    push: {
-      vapid: !!(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY),
-    },
-  };
-
-  const configured = {
-    email: services.email.resend || services.email.sendgrid,
-    sms: services.sms.twilio,
-    push: services.push.vapid,
-  };
+  const resendKey = process.env.RESEND_API_KEY;
+  const sendgridKey = process.env.SENDGRID_API_KEY;
+  const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+  const twilioToken = process.env.TWILIO_AUTH_TOKEN;
+  const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+  const twilioWhatsapp = process.env.TWILIO_WHATSAPP_NUMBER;
+  const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
 
   return NextResponse.json({
     status: 'Notification services status',
-    services,
-    configured,
+    services: {
+      email: {
+        resend: !!resendKey,
+        sendgrid: !!sendgridKey,
+      },
+      sms: {
+        twilio: !!(twilioSid && twilioToken && twilioPhone),
+      },
+      whatsapp: {
+        twilio: !!(twilioSid && twilioToken),
+        customNumber: !!twilioWhatsapp,
+        sandboxAvailable: true,
+      },
+      push: {
+        vapid: !!(vapidPublic && vapidPrivate),
+      },
+    },
+    configured: {
+      email: !!(resendKey || sendgridKey),
+      sms: !!(twilioSid && twilioToken && twilioPhone),
+      whatsapp: !!(twilioSid && twilioToken),
+      push: !!(vapidPublic && vapidPrivate),
+    },
     summary: {
-      total: Object.values(configured).filter(Boolean).length,
-      configured: Object.keys(configured).filter(key => configured[key as keyof typeof configured]),
-      missing: Object.keys(configured).filter(key => !configured[key as keyof typeof configured]),
+      total: 4,
+      configured: [
+        (resendKey || sendgridKey) ? 'email' : null,
+        (twilioSid && twilioToken && twilioPhone) ? 'sms' : null,
+        (twilioSid && twilioToken) ? 'whatsapp' : null,
+        (vapidPublic && vapidPrivate) ? 'push' : null,
+      ].filter(Boolean),
+      missing: [
+        !(resendKey || sendgridKey) ? 'email' : null,
+        !(twilioSid && twilioToken && twilioPhone) ? 'sms' : null,
+        !(twilioSid && twilioToken) ? 'whatsapp' : null,
+        !(vapidPublic && vapidPrivate) ? 'push' : null,
+      ].filter(Boolean),
     },
     instructions: {
-      email: !configured.email ? 'Add RESEND_API_KEY (recommended) or SENDGRID_API_KEY' : 'Configured ✓',
-      sms: !configured.sms ? 'Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER' : 'Configured ✓',
-      push: !configured.push ? 'Add NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY' : 'Configured ✓',
+      email: resendKey || sendgridKey ? 'Configured ✓' : 'Add RESEND_API_KEY or SENDGRID_API_KEY',
+      sms: twilioSid && twilioToken && twilioPhone ? 'Configured ✓' : 'Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER',
+      whatsapp: twilioSid && twilioToken ? 'Configured ✓ (Use sandbox or add TWILIO_WHATSAPP_NUMBER)' : 'Add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN',
+      push: vapidPublic && vapidPrivate ? 'Configured ✓' : 'Add VAPID keys',
     },
+    whatsappSetup: {
+      sandbox: 'https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn',
+      note: 'WhatsApp uses same Twilio credentials as SMS, separate free tier'
+    }
   });
 }
 
-/**
- * Test sending notifications
- * POST /api/notifications/test
- */
 export async function POST(request: NextRequest) {
   try {
-    const { type, to, subject, message } = await request.json();
+    const { type, to, subject, message, html, text } = await request.json();
 
     if (!type || !to) {
       return NextResponse.json(
-        { error: 'Missing required fields: type, to' },
+        { success: false, message: 'Missing type or to field' },
         { status: 400 }
       );
     }
 
-    if (type === 'email') {
-      const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to,
-          subject: subject || 'Test Email from RestoCafe',
-          html: `<h1>Test Email</h1><p>${message || 'This is a test email from RestoCafe notification system.'}</p>`,
-          text: message || 'This is a test email from RestoCafe notification system.',
-        }),
-      });
+    let result;
 
-      const result = await emailResponse.json();
-      return NextResponse.json({ type: 'email', ...result });
+    switch (type) {
+      case 'email':
+        result = await fetch(`${request.nextUrl.origin}/api/notifications/email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, subject, html, text, message }),
+        });
+        break;
+
+      case 'sms':
+        result = await fetch(`${request.nextUrl.origin}/api/notifications/sms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, message }),
+        });
+        break;
+
+      case 'whatsapp':
+        result = await fetch(`${request.nextUrl.origin}/api/notifications/whatsapp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, message }),
+        });
+        break;
+
+      default:
+        return NextResponse.json(
+          { success: false, message: `Unknown notification type: ${type}` },
+          { status: 400 }
+        );
     }
 
-    if (type === 'sms') {
-      const smsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/sms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to,
-          message: message || 'Test SMS from RestoCafe notification system',
-        }),
-      });
-
-      const result = await smsResponse.json();
-      return NextResponse.json({ type: 'sms', ...result });
-    }
-
-    return NextResponse.json(
-      { error: 'Invalid type. Use "email" or "sms"' },
-      { status: 400 }
-    );
+    const data = await result.json();
+    return NextResponse.json(data, { status: result.status });
   } catch (error: any) {
     return NextResponse.json(
-      { error: error.message },
+      { success: false, message: 'Test failed', error: error.message },
       { status: 500 }
     );
   }

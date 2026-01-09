@@ -61,6 +61,86 @@ export default function CheckoutPage() {
     );
   }
 
+  const sendOrderNotifications = async (order: any) => {
+    try {
+      // Send Email Notification
+      const emailPromise = fetch('/api/notifications/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: order.email,
+          subject: `Order Confirmation #${order.id}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="margin: 0; font-size: 28px;">🎉 Order Confirmed!</h1>
+              </div>
+              <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+                <h2 style="color: #333; margin-bottom: 20px;">Thank you for your order, ${order.fullName}!</h2>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <p style="margin: 5px 0;"><strong>Order ID:</strong> ${order.id}</p>
+                  <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${order.total.toFixed(2)}</p>
+                  <p style="margin: 5px 0;"><strong>Delivery Address:</strong> ${order.address}, ${order.city} - ${order.postalCode}</p>
+                  <p style="margin: 5px 0;"><strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}</p>
+                </div>
+                <div style="background: #e3f2fd; padding: 15px; border-left: 4px solid #2196f3; border-radius: 5px; margin-bottom: 20px;">
+                  <p style="margin: 0; color: #1976d2;">⏱️ <strong>Estimated Delivery:</strong> 30 minutes</p>
+                </div>
+                <h3 style="color: #333; margin-top: 20px;">Order Items:</h3>
+                <ul style="list-style: none; padding: 0;">
+                  ${order.items.map((item: any) => `
+                    <li style="padding: 10px; background: white; margin-bottom: 10px; border-radius: 5px;">
+                      <strong>${item.name}</strong> x${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}
+                    </li>
+                  `).join('')}
+                </ul>
+                <p style="text-align: center; margin-top: 30px; color: #666;">
+                  Thank you for choosing RestoCafe! 🍕🍔🍰
+                </p>
+              </div>
+            </div>
+          `,
+          text: `Order Confirmation #${order.id}\n\nThank you ${order.fullName}! Your order has been confirmed.\n\nTotal: ₹${order.total.toFixed(2)}\nEstimated Delivery: 30 minutes\n\nDelivery to: ${order.address}, ${order.city}`,
+        }),
+      });
+
+      // Send SMS Notification
+      const smsPromise = fetch('/api/notifications/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: `+91 ${order.phone}`,
+          message: `RestoCafe: Order ${order.id} confirmed! Total: ₹${order.total.toFixed(2)}. Estimated delivery: 30 min. Track: resto-cafe-neon.vercel.app/order-success?orderId=${order.id}`,
+        }),
+      });
+
+      // Wait for both notifications
+      const [emailResult, smsResult] = await Promise.allSettled([emailPromise, smsPromise]);
+
+      // Check results
+      if (emailResult.status === 'fulfilled') {
+        const emailData = await emailResult.value.json();
+        if (emailData.success) {
+          console.log('✅ Email sent successfully');
+        } else {
+          console.warn('⚠️ Email failed:', emailData.message);
+        }
+      }
+
+      if (smsResult.status === 'fulfilled') {
+        const smsData = await smsResult.value.json();
+        if (smsData.success) {
+          console.log('✅ SMS sent successfully');
+        } else {
+          console.warn('⚠️ SMS failed:', smsData.message);
+        }
+      }
+    } catch (error) {
+      console.error('Notification error:', error);
+      // Don't block order completion if notifications fail
+    }
+  };
+
   const onSubmit = async (data: CheckoutForm) => {
     setIsProcessing(true);
     try {
@@ -81,6 +161,13 @@ export default function CheckoutPage() {
       const orders = JSON.parse(localStorage.getItem('restocafe-orders') || '[]');
       orders.push(order);
       localStorage.setItem('restocafe-orders', JSON.stringify(orders));
+
+      // Send notifications (don't wait for them)
+      sendOrderNotifications(order).then(() => {
+        toast.success('📧 Confirmation email and SMS sent!');
+      }).catch(() => {
+        toast.error('⚠️ Order placed but notifications failed');
+      });
 
       toast.success('Order placed successfully!');
       clearCart();
@@ -149,7 +236,7 @@ export default function CheckoutPage() {
 
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-gray-700">
-                    Phone *
+                    Phone * (10 digits)
                   </label>
                   <input
                     {...register('phone')}
@@ -176,7 +263,7 @@ export default function CheckoutPage() {
                     {...register('address')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-orange-200"
                     rows={3}
-                    placeholder="123 Main St, Apartment 4B"
+                    placeholder="No.123, KR defence colony,1st phase, cheemasandra, Bengaluru"
                   />
                   {errors.address && (
                     <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
@@ -245,7 +332,7 @@ export default function CheckoutPage() {
               disabled={isProcessing}
               className="w-full btn-primary text-lg py-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isProcessing ? 'Processing...' : 'Place Order'}
+              {isProcessing ? 'Processing Order & Sending Notifications...' : 'Place Order'}
             </button>
           </motion.form>
 
@@ -287,6 +374,12 @@ export default function CheckoutPage() {
                   {formatPrice(total * 1.05)}
                 </span>
               </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                📧 Email and 📱 SMS confirmations will be sent automatically
+              </p>
             </div>
           </motion.div>
         </div>
